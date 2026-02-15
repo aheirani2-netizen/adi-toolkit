@@ -65,7 +65,7 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;fon
 <label>Final Rating:</label>
 <div class="scale-bar" id="scale2"></div>
 
-<label>Additional Comments:</label>
+<label>Agreed lesson goal dor next lesson:</label>
 <textarea id="comments"></textarea>
 
 <button onclick="generatePDF()">Generate PDF</button>
@@ -215,11 +215,28 @@ let body=buildReport();
 window.location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-function sharePDF(){
+async function sharePDF(){
+if(!currentPupil){
+    alert("Please select a pupil first.");
+    return;
+}
+
 const { jsPDF } = window.jspdf;
 const doc = new jsPDF();
 doc.text(doc.splitTextToSize(buildReport(),180),15,20);
-doc.output('dataurlnewwindow');
+
+const pdfBlob = doc.output("blob");
+const file = new File([pdfBlob], `Lesson_Log_${currentPupil}.pdf`, { type: "application/pdf" });
+
+if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    await navigator.share({
+        files: [file],
+        title: "Lesson Reflection",
+        text: "Please find attached the lesson reflection log."
+    });
+} else {
+    alert("Sharing not supported on this device/browser.");
+}
 }
 
 function toggleDark(){
