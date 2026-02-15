@@ -22,10 +22,12 @@ input, textarea, select {
     border: 1px solid #ccc; 
     font-size: 16px; 
     box-sizing: border-box;
+    background: white;
 }
 textarea { 
     min-height: 100px; 
     resize: vertical; 
+    background: white;
 }
 button {
     width: 100%; 
@@ -75,23 +77,66 @@ button#bestPdfPhone {
 }
 .hidden { display: none !important; }
 
-/* Hide button & instructions when printing / saving as PDF */
+/* Very aggressive print rules for iOS Safari */
 @media print {
   #bestPdfPhone,
-  #phoneInstructions {
+  #phoneInstructions,
+  footer, .footer, [role="contentinfo"], [data-print-hidden] {
     display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
   }
-  /* Try to keep labels with their content */
+
+  body, #formArea, input, textarea, select {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    -webkit-background-clip: padding-box !important;
+  }
+
+  textarea, input[type="text"], input[type="number"] {
+    background-color: #ffffff !important;
+    border: 1px solid #999 !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+    margin: 6px 0 12px 0 !important;
+    min-height: 80px !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid-column !important;
+    break-inside: avoid !important;
+  }
+
+  .section-label {
+    margin-top: 16px !important;
+    margin-bottom: 4px !important;
+    page-break-after: avoid !important;
+  }
+
   .section-label + textarea,
-  textarea {
-    page-break-inside: avoid;
-    break-inside: avoid;
+  .section-label + input {
+    margin-top: 4px !important;
   }
-  h1, p, .total-hours, .scale-bar {
-    page-break-after: avoid;
+
+  h1, p, .total-hours, .scale-bar, .pupil-bar {
+    page-break-after: avoid !important;
   }
+
   body {
-    font-size: 14px; /* slightly smaller → more content per page */
+    font-size: 13.5px !important;
+    line-height: 1.4 !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* Force white page background */
+  @page {
+    size: A4;
+    margin: 10mm;
+    background: white;
   }
 }
 </style>
@@ -127,141 +172,4 @@ button#bestPdfPhone {
 <div class="section-label">What didn’t go well? / What could you do differently?</div>
 <textarea id="improve"></textarea>
 
-<div class="section-label">Did you achieve the goal? / Reflections</div>
-<textarea id="achieved"></textarea>
-
-<div class="section-label">Final Self Rating (1–10)</div>
-<div class="scale-bar" id="scale2"></div>
-
-<div class="section-label">Additional Comments</div>
-<textarea id="comments"></textarea>
-
-<!-- Button to show instructions when needed (hidden during print) -->
-<button id="bestPdfPhone">How to save perfect PDF on phone</button>
-
-<!-- Instructions – hidden by default, only shown when button tapped -->
-<div id="phoneInstructions" class="instructions hidden">
-    <h3>How to save PDF that looks exactly like this page</h3>
-    
-    <p><strong>iPhone (Safari):</strong></p>
-    <ol>
-        <li>Scroll to top of the page</li>
-        <li>Tap the Share icon (square with arrow up)</li>
-        <li>Scroll down and tap <strong>Print</strong></li>
-        <li>Pinch outwards with two fingers on the preview to see all pages</li>
-        <li>Tap the Share icon again (top-right) → choose <strong>Save to Files</strong> or <strong>Mail</strong></li>
-    </ol>
-
-    <p><strong>Android (Chrome):</strong></p>
-    <ol>
-        <li>Tap the three dots ⋮ (top right)</li>
-        <li>Tap <strong>Share</strong> → <strong>Print</strong></li>
-        <li>Select <strong>Save as PDF</strong></li>
-        <li>Tap the PDF/save icon</li>
-        <li>Choose folder and save</li>
-    </ol>
-
-    <p>Then attach the PDF to email from Files/Downloads.</p>
-
-    <button onclick="document.getElementById('phoneInstructions').classList.add('hidden')">Close</button>
-</div>
-
-</div>
-
-<script>
-// ────────────────────────────────────────────────
-document.getElementById("date").innerText = 
-    new Date().toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
-
-let pupils = JSON.parse(localStorage.getItem("adiPupilsV3")) || {};
-let currentPupil = null;
-
-function save() { 
-    localStorage.setItem("adiPupilsV3", JSON.stringify(pupils)); 
-}
-
-function loadDropdown() {
-    let select = document.getElementById("pupilSelect");
-    select.innerHTML = "";
-    let names = Object.keys(pupils);
-
-    if (names.length === 0) {
-        currentPupil = null;
-        document.getElementById("totalHours").innerText = "0";
-        return;
-    }
-
-    names.forEach(name => {
-        let opt = document.createElement("option");
-        opt.value = name;
-        opt.text = name;
-        select.appendChild(opt);
-    });
-
-    if (!currentPupil || !pupils[currentPupil]) currentPupil = names[0];
-    select.value = currentPupil;
-    updateDisplay();
-}
-
-function addPupil() {
-    let name = prompt("Enter pupil name:");
-    if (!name || !name.trim()) return;
-    name = name.trim();
-    if (!pupils[name]) {
-        pupils[name] = {hours: 0, lessons: []};
-        currentPupil = name;
-        save();
-        loadDropdown();
-    } else {
-        alert("That pupil already exists!");
-    }
-}
-
-function deletePupil() {
-    if (!currentPupil) return;
-    if (confirm("Delete " + currentPupil + " and all data?")) {
-        delete pupils[currentPupil];
-        currentPupil = null;
-        save();
-        loadDropdown();
-    }
-}
-
-document.getElementById("pupilSelect").addEventListener("change", function() {
-    currentPupil = this.value || null;
-    updateDisplay();
-});
-
-function updateDisplay() {
-    document.getElementById("totalHours").innerText = 
-        currentPupil ? (pupils[currentPupil]?.hours || 0) : 0;
-}
-
-function createScale(id) {
-    let container = document.getElementById(id);
-    for (let i = 1; i <= 10; i++) {
-        let div = document.createElement("div");
-        div.textContent = i;
-        div.onclick = () => {
-            [...container.children].forEach(c => c.classList.remove("selected"));
-            div.classList.add("selected");
-            container.dataset.value = i;
-        };
-        container.appendChild(div);
-    }
-}
-createScale("scale1");
-createScale("scale2");
-
-// Toggle instructions visibility
-document.getElementById("bestPdfPhone").onclick = function() {
-    document.getElementById("phoneInstructions").classList.toggle("hidden");
-    window.scrollTo({top: 0, behavior: 'smooth'});
-};
-
-// Initial load
-loadDropdown();
-</script>
-
-</body>
-</html>
+<div class="section-label">Did you achieve the goal
