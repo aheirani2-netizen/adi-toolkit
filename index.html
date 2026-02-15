@@ -3,78 +3,132 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ADI Reflective Log</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body { font-family: Arial; padding:20px; max-width:900px; margin:auto; background:#f4f4f4; }
-h1{text-align:center;}
-input,textarea,select{width:100%;padding:10px;margin-bottom:15px;border-radius:8px;border:1px solid #ccc;font-size:16px;}
-textarea{min-height:80px;}
-button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;font-size:16px;cursor:pointer;background:#111;color:white;}
-.scale-bar{display:flex;margin-bottom:15px;}
-.scale-bar div{flex:1;padding:8px;text-align:center;color:white;font-weight:bold;cursor:pointer;}
-.scale-bar div:nth-child(-n+3){background:#d32f2f;}
-.scale-bar div:nth-child(n+4):nth-child(-n+6){background:#fbc02d;color:black;}
-.scale-bar div:nth-child(n+7){background:#2e7d32;}
-.selected{outline:3px solid black;}
-.pupil-bar{display:flex;gap:8px;margin-bottom:15px;}
+body{
+    font-family:Arial;
+    background:#111;
+    color:white;
+    padding:20px;
+    max-width:900px;
+    margin:auto;
+}
+h1{text-align:center;margin-bottom:5px;}
+small{display:block;text-align:center;margin-bottom:20px;color:#aaa;}
+
+input,textarea,select{
+    width:100%;
+    padding:10px;
+    margin-bottom:15px;
+    border-radius:8px;
+    border:1px solid #444;
+    background:#222;
+    color:white;
+    font-size:16px;
+}
+textarea{min-height:100px;}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:8px;
+    font-size:16px;
+    cursor:pointer;
+    background:white;
+    color:black;
+}
+
+.scale{
+    display:flex;
+    margin-bottom:15px;
+}
+.scale div{
+    flex:1;
+    padding:8px;
+    text-align:center;
+    font-weight:bold;
+    cursor:pointer;
+}
+.scale div:nth-child(-n+3){background:#d32f2f;}
+.scale div:nth-child(n+4):nth-child(-n+6){background:#fbc02d;color:black;}
+.scale div:nth-child(n+7){background:#2e7d32;}
+.selected{outline:3px solid white;}
+
+.pupil-bar{
+    display:flex;
+    gap:8px;
+    margin-bottom:15px;
+}
 .pupil-bar select{flex:2;}
 .pupil-bar button{flex:1;}
-.total-hours{font-weight:bold;margin-bottom:15px;}
+
+.total-hours{
+    font-weight:bold;
+    margin-bottom:15px;
+}
+.hide-print{margin-top:10px;}
 </style>
 </head>
 
 <body>
 
 <h1>LEARNER REFLECTIVE LOG</h1>
-<p><strong>Instructor:</strong> Alex Heirani</p>
-<p><strong>Date:</strong> <span id="date"></span></p>
+<small>Instructor: Alex Heirani</small>
 
-<div class="pupil-bar">
+<div id="formArea">
+
+<div class="pupil-bar hide-print">
 <select id="pupilSelect"></select>
 <button onclick="addPupil()">Add</button>
 <button onclick="deletePupil()">Delete</button>
 </div>
 
-<p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
+<div class="total-hours">
+Total Hours: <span id="totalHours">0</span>
+</div>
 
-<label>Lesson Duration (hours):</label>
+<label>Lesson Duration (hours)</label>
 <input type="number" step="0.5" id="lessonHours">
 
-<label>Lesson Goal:</label>
+<label>Lesson Goal</label>
 <textarea id="goal"></textarea>
 
-<label>Initial Self Rating:</label>
-<div class="scale-bar" id="scale1"></div>
+<label>Initial Self Rating</label>
+<div class="scale" id="scale1"></div>
 
-<label>What didn’t go well?</label>
+<label>What didn’t go well</label>
 <textarea id="improve"></textarea>
 
-<label>What could you do differently?</label>
+<label>What could you do differently</label>
 <textarea id="different"></textarea>
 
-<label>What went well?</label>
+<label>What went well</label>
 <textarea id="well"></textarea>
 
-<label>Did you achieve the goal?</label>
+<label>Did you achieve the goal</label>
 <textarea id="achieved"></textarea>
 
-<label>Final Self Rating:</label>
-<div class="scale-bar" id="scale2"></div>
+<label>Final Self Rating</label>
+<div class="scale" id="scale2"></div>
 
-<label>Additional Comments:</label>
+<label>Additional Comments</label>
 <textarea id="comments"></textarea>
 
-<button onclick="generatePDF()">Generate Lesson PDF</button>
+</div>
+
+<button class="hide-print" onclick="generatePDF()">Generate PDF</button>
 
 <script>
-document.getElementById("date").innerText =
-new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 
-let pupils = JSON.parse(localStorage.getItem("adiStyledV1")) || {};
+let pupils = JSON.parse(localStorage.getItem("adiScreenshotV2")) || {};
 let currentPupil=null;
 
-function save(){ localStorage.setItem("adiStyledV1",JSON.stringify(pupils)); }
+function save(){ localStorage.setItem("adiScreenshotV2",JSON.stringify(pupils)); }
 
 function loadDropdown(){
 let select=document.getElementById("pupilSelect");
@@ -95,7 +149,7 @@ updateDisplay();
 function addPupil(){
 let name=prompt("Enter pupil name:");
 if(!name)return;
-if(!pupils[name])pupils[name]={hours:0,lessons:[]};
+if(!pupils[name])pupils[name]={hours:0};
 currentPupil=name;
 save();
 loadDropdown();
@@ -134,60 +188,50 @@ document.getElementById(id).appendChild(div);
 createScale("scale1");
 createScale("scale2");
 
-function getScale(id){
-return document.getElementById(id).getAttribute("data-value")||"";
-}
-
 function generatePDF(){
+
 if(!currentPupil){alert("Select pupil first");return;}
-
-const { jsPDF } = window.jspdf;
-let pdf=new jsPDF();
-let y=20;
-
-function section(title,content){
-pdf.setFontSize(12);
-pdf.setFont(undefined,"bold");
-pdf.text(title,15,y);
-pdf.setFont(undefined,"normal");
-y+=6;
-
-let text=pdf.splitTextToSize(content||"-",175);
-let boxHeight=text.length*6+6;
-
-if(y+boxHeight>270){pdf.addPage();y=20;}
-
-pdf.setDrawColor(0);
-pdf.rect(15,y-4,180,boxHeight);
-pdf.text(text,18,y+2);
-
-y+=boxHeight+10;
-}
 
 let hours=parseFloat(lessonHours.value)||0;
 pupils[currentPupil].hours+=hours;
 save();
 updateDisplay();
 
-pdf.setFontSize(16);
-pdf.text("LEARNER REFLECTIVE LOG",105,12,{align:"center"});
-pdf.setFontSize(10);
-pdf.text("Instructor: Alex Heirani",15,18);
-pdf.text("Pupil: "+currentPupil,120,18);
-pdf.text("Date: "+date.innerText,15,24);
+/* Hide buttons */
+document.querySelectorAll(".hide-print").forEach(el=>el.style.display="none");
 
-y=35;
+html2canvas(document.getElementById("formArea"),{
+scale:2,
+scrollY:-window.scrollY
+}).then(canvas=>{
 
-section("Lesson Goal",goal.value);
-section("Initial Self Rating",getScale("scale1")+"/10");
-section("What didn’t go well",improve.value);
-section("What could you do differently",different.value);
-section("What went well",well.value);
-section("Did you achieve the goal",achieved.value);
-section("Final Self Rating",getScale("scale2")+"/10");
-section("Additional Comments",comments.value);
+const { jsPDF } = window.jspdf;
+let pdf=new jsPDF("p","mm","a4");
+
+let imgWidth=210;
+let pageHeight=297;
+let imgHeight=canvas.height*imgWidth/canvas.width;
+let heightLeft=imgHeight;
+let position=0;
+
+let imgData=canvas.toDataURL("image/jpeg",1.0);
+
+pdf.addImage(imgData,"JPEG",0,position,imgWidth,imgHeight);
+heightLeft-=pageHeight;
+
+while(heightLeft>0){
+position=heightLeft-imgHeight;
+pdf.addPage();
+pdf.addImage(imgData,"JPEG",0,position,imgWidth,imgHeight);
+heightLeft-=pageHeight;
+}
 
 pdf.save("Lesson_"+currentPupil+".pdf");
+
+/* Show buttons again */
+document.querySelectorAll(".hide-print").forEach(el=>el.style.display="block");
+
+});
 }
 
 loadDropdown();
