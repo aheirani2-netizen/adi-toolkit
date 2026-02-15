@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,11 +34,11 @@ textarea {
 
 button {
     width: 100%; 
-    padding: 14px; 
-    margin: 8px 0; 
+    padding: 12px; 
+    margin: 6px 0; 
     border: none; 
-    border-radius: 10px;
-    font-size: 16px; 
+    border-radius: 8px;
+    font-size: 15px; 
     font-weight: bold; 
     cursor: pointer; 
     color: white;
@@ -47,11 +47,11 @@ button {
 .print-btn { background: #2e7d32; }
 .save-btn { background: #1976d2; }
 
-.scale-bar { display: flex; margin-bottom: 20px; gap: 4px; }
+.scale-bar { display: flex; gap: 4px; margin-bottom: 20px; }
 
 .scale-bar div {
     flex: 1; 
-    padding: 10px; 
+    padding: 8px; 
     text-align: center; 
     color: white; 
     font-weight: bold;
@@ -63,30 +63,30 @@ button {
 .scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color: black; }
 .scale-bar div:nth-child(n+7) { background: #2e7d32; }
 
-.selected { outline: 4px solid #000; }
+.selected { outline: 3px solid #000; }
 
-.pupil-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+.pupil-bar { display: flex; gap: 8px; margin-bottom: 10px; }
 .pupil-bar select { flex: 3; }
 .pupil-bar button { flex: 1; }
 
 .total-hours { 
     font-weight: bold; 
-    font-size: 1.2em; 
-    margin: 10px 0; 
+    font-size: 1.1em; 
+    margin: 8px 0; 
     text-align: center; 
 }
 
 .section-label {
-    margin-top: 16px;
+    margin-top: 14px;
     margin-bottom: 4px;
     font-weight: bold;
 }
 
 .print-section {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
-/* ===== PRINT SAFE ===== */
+/* ===== PRINT CONTROL ===== */
 @media print {
 
   body {
@@ -97,15 +97,28 @@ button {
 
   button { display: none !important; }
 
+  .print-section {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .section-label {
+    page-break-after: avoid !important;
+    margin-top: 10px !important;
+  }
+
   textarea {
     font-size: 13px !important;
     line-height: 1.65 !important;
+
     height: auto !important;
     overflow: hidden !important;
-    padding: 10px 10px 16px 10px !important;
+
+    padding: 10px 10px 16px 10px !important; /* 16px bottom padding */
+    margin-bottom: 10px !important;
+
     border: 1px solid #999 !important;
     border-radius: 6px !important;
-    margin-bottom: 12px !important;
   }
 
   @page {
@@ -121,6 +134,7 @@ button {
 <p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
 
+<div class="section-label">Student Name</div>
 <div class="pupil-bar">
     <select id="pupilSelect"></select>
     <button onclick="addPupil()">Add</button>
@@ -175,9 +189,9 @@ button {
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
-/* ---------- SCALE ---------- */
-function createScale(containerId) {
-    const container = document.getElementById(containerId);
+/* SCALE */
+function createScale(id) {
+    const container = document.getElementById(id);
     for (let i = 1; i <= 10; i++) {
         const div = document.createElement("div");
         div.innerText = i;
@@ -191,7 +205,7 @@ function createScale(containerId) {
 createScale("scale1");
 createScale("scale2");
 
-/* ---------- DATA STORAGE ---------- */
+/* STORAGE */
 let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
 const pupilSelect = document.getElementById("pupilSelect");
 
@@ -209,14 +223,9 @@ refreshPupils();
 
 function updateHours() {
     const index = pupilSelect.value;
-    if (index === "" || !pupils[index]) {
-        totalHours.innerText = 0;
-        return;
-    }
-    totalHours.innerText = pupils[index].totalHours || 0;
+    totalHours.innerText = (pupils[index] && pupils[index].totalHours) || 0;
 }
 
-/* ---------- SAVE LESSON ---------- */
 function getScaleValue(id) {
     const selected = document.querySelector(`#${id} .selected`);
     return selected ? selected.innerText : "";
@@ -224,10 +233,7 @@ function getScaleValue(id) {
 
 function saveLesson() {
     const index = pupilSelect.value;
-    if (index === "") {
-        alert("Select a pupil first.");
-        return;
-    }
+    if (index === "") return alert("Select a pupil.");
 
     const hours = parseFloat(lessonHours.value) || 0;
 
@@ -250,11 +256,9 @@ function saveLesson() {
 
     localStorage.setItem("pupils", JSON.stringify(pupils));
     updateHours();
-
     alert("Lesson saved.");
 }
 
-/* ---------- ADD / DELETE ---------- */
 function addPupil() {
     const name = prompt("Enter pupil name:");
     if (!name) return;
