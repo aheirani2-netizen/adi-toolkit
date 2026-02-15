@@ -12,6 +12,7 @@ body {
     max-width: 900px; 
     margin: auto; 
     background: #f4f4f4; 
+    line-height: 1.5;
 }
 h1 { text-align: center; margin-bottom: 20px; }
 
@@ -82,13 +83,13 @@ button {
     margin-bottom: 10px;
 }
 
-/* PRINT FIX */
+/* PRINT OPTIMISED */
 @media print {
 
   body {
     background: white !important;
     font-size: 13px !important;
-    line-height: 1.4 !important;
+    line-height: 1.5 !important;
   }
 
   button { display: none !important; }
@@ -101,12 +102,24 @@ button {
   .section-label {
     page-break-after: avoid !important;
     margin-top: 10px !important;
+    margin-bottom: 3px !important;
   }
 
   textarea, input[type="number"] {
-    min-height: 60px !important;
+
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+
+    padding: 8px 8px 10px 8px !important; /* extra bottom padding */
+
+    min-height: auto !important;
+
+    box-sizing: border-box !important;
+
     page-break-inside: auto !important;
     break-inside: auto !important;
+
+    overflow: visible !important; /* prevents clipping */
   }
 
   @page {
@@ -161,8 +174,6 @@ button {
     <div class="section-label">Did you achieve the goal?</div>
     <textarea id="achieved"></textarea>
 </div>
-
-<!-- BOTTOM SECTION YOU MENTIONED -->
 
 <div class="print-section">
     <div class="section-label">Final Self Rating (1–10)</div>
