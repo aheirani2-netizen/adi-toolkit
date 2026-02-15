@@ -81,23 +81,17 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;fon
 document.getElementById("date").innerText =
 new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 
-let pupils = JSON.parse(localStorage.getItem("adiPupilsV2")) || {};
+let pupils = JSON.parse(localStorage.getItem("adiPupilsV3")) || {};
 let currentPupil = null;
 
-function save(){
-localStorage.setItem("adiPupilsV2", JSON.stringify(pupils));
-}
+function save(){ localStorage.setItem("adiPupilsV3", JSON.stringify(pupils)); }
 
 function loadDropdown(){
 let select=document.getElementById("pupilSelect");
 select.innerHTML="";
 let names=Object.keys(pupils);
 
-if(names.length===0){
-currentPupil=null;
-document.getElementById("totalHours").innerText="0";
-return;
-}
+if(names.length===0){currentPupil=null;document.getElementById("totalHours").innerText="0";return;}
 
 names.forEach(name=>{
 let opt=document.createElement("option");
@@ -106,10 +100,7 @@ opt.text=name;
 select.appendChild(opt);
 });
 
-if(!currentPupil || !pupils[currentPupil]){
-currentPupil=names[0];
-}
-
+if(!currentPupil || !pupils[currentPupil]) currentPupil=names[0];
 select.value=currentPupil;
 updateDisplay();
 }
@@ -117,13 +108,9 @@ updateDisplay();
 function addPupil(){
 let name=prompt("Enter pupil name:");
 if(!name) return;
-
-if(!pupils[name]){
-pupils[name]={hours:0,lessons:[]};
-save();
-}
-
+if(!pupils[name]) pupils[name]={hours:0,lessons:[]};
 currentPupil=name;
+save();
 loadDropdown();
 }
 
@@ -138,8 +125,7 @@ loadDropdown();
 }
 
 document.getElementById("pupilSelect").addEventListener("change",function(){
-currentPupil=this.value;
-updateDisplay();
+currentPupil=this.value;updateDisplay();
 });
 
 function updateDisplay(){
@@ -157,31 +143,13 @@ this.classList.add("selected");
 this.parentElement.setAttribute("data-value",i);
 };
 document.getElementById(id).appendChild(div);
-}
-}
+}}
 createScale("scale1");
 createScale("scale2");
 
-function getScale(id){
-return document.getElementById(id).getAttribute("data-value")||"";
-}
-
 function saveLessonData(){
 let hours=parseFloat(document.getElementById("lessonHours").value)||0;
-
-let lesson={
-date:document.getElementById("date").innerText,
-goal:goal.value,
-initial:getScale("scale1"),
-improve:improve.value,
-different:different.value,
-well:well.value,
-achieved:achieved.value,
-final:getScale("scale2"),
-comments:comments.value,
-hours:hours
-};
-
+let lesson={date:date.innerText,hours:hours};
 pupils[currentPupil].hours+=hours;
 pupils[currentPupil].lessons.push(lesson);
 save();
@@ -190,77 +158,57 @@ updateDisplay();
 
 async function generateLessonPDF(){
 if(!currentPupil){alert("Select a pupil first.");return;}
-
 saveLessonData();
 
 let buttons=document.querySelectorAll(".hidden-print");
 buttons.forEach(b=>b.style.display="none");
 
 const { jsPDF } = window.jspdf;
+let canvas = await html2canvas(document.getElementById("formArea"),{scale:2});
+let pdf = new jsPDF("p","mm","a4");
 
-html2canvas(document.getElementById("formArea"),{scale:2}).then(canvas=>{
+let pageWidth = pdf.internal.pageSize.getWidth();
+let pageHeight = pdf.internal.pageSize.getHeight();
 
-let pdf=new jsPDF("p","mm","a4");
-let pageWidth=pdf.internal.pageSize.getWidth();
-let pageHeight=pdf.internal.pageSize.getHeight();
+let imgWidth = pageWidth;
+let imgHeight = canvas.height * imgWidth / canvas.width;
 
-let imgWidth=pageWidth;
-let imgHeight=canvas.height*imgWidth/canvas.width;
+let pageCanvas = document.createElement("canvas");
+let ctx = pageCanvas.getContext("2d");
 
-let heightLeft=imgHeight;
-let position=0;
+let pageHeightPx = canvas.width * pageHeight / pageWidth;
+let totalPages = Math.ceil(canvas.height / pageHeightPx);
 
-pdf.addImage(canvas,"PNG",0,position,imgWidth,imgHeight);
-heightLeft-=pageHeight;
+for(let i=0;i<totalPages;i++){
+pageCanvas.width = canvas.width;
+pageCanvas.height = pageHeightPx;
 
-while(heightLeft>0){
-position=heightLeft-imgHeight;
-pdf.addPage();
-pdf.addImage(canvas,"PNG",0,position,imgWidth,imgHeight);
-heightLeft-=pageHeight;
+ctx.fillStyle = "white";
+ctx.fillRect(0,0,pageCanvas.width,pageCanvas.height);
+ctx.drawImage(canvas,0,i*pageHeightPx,canvas.width,pageHeightPx,0,0,canvas.width,pageHeightPx);
+
+if(i>0) pdf.addPage();
+pdf.addImage(pageCanvas.toDataURL("image/png"),"PNG",0,0,imgWidth,pageHeight);
 }
 
 pdf.save("Lesson_"+currentPupil+".pdf");
 
 buttons.forEach(b=>b.style.display="block");
-});
 }
 
 function exportHistoryPDF(){
 if(!currentPupil){alert("Select a pupil first.");return;}
-
 const { jsPDF } = window.jspdf;
 let pdf=new jsPDF();
 let y=20;
-
-pdf.text("Full Progress Report - "+currentPupil,15,10);
+pdf.text("Full Progress - "+currentPupil,15,10);
 
 pupils[currentPupil].lessons.forEach((l,i)=>{
-let text=`Lesson ${i+1} - ${l.date}
-Hours: ${l.hours}
-Goal: ${l.goal}
-Initial Rating: ${l.initial}
-Final Rating: ${l.final}
-
-What went well:
-${l.well}
-
-Needs improvement:
-${l.improve}
-
---------------------------`;
-
-let split=pdf.splitTextToSize(text,180);
-pdf.text(split,15,y);
-y+=split.length*6;
-
-if(y>270){
-pdf.addPage();
-y=20;
-}
+pdf.text(`Lesson ${i+1} - ${l.date} - ${l.hours} hrs`,15,y);
+y+=10;
+if(y>270){pdf.addPage();y=20;}
 });
-
-pdf.save("Full_Progress_"+currentPupil+".pdf");
+pdf.save("Progress_"+currentPupil+".pdf");
 }
 
 loadDropdown();
