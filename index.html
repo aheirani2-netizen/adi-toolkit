@@ -1,357 +1,324 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADI Reflective Log</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ADI Reflective Log</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- pdfmake -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js"></script>
 
-<style>
-body { 
-    font-family: Arial, sans-serif; 
-    padding:20px; 
-    max-width:900px; 
-    margin:auto; 
-    background:#f4f4f4; 
-}
-h1 { text-align:center; }
-input, textarea, select {
-    width:100%;
-    padding:10px;
-    margin-bottom:15px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    font-size:16px;
-    box-sizing: border-box;
-}
-textarea { min-height:80px; }
-button {
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border:none;
-    border-radius:8px;
-    font-size:16px;
-    cursor:pointer;
-    background:#111;
-    color:white;
-}
-button#emailBtn {
-    background: #0066cc;
-}
-.scale-bar {
-    display:flex;
-    margin-bottom:15px;
-}
-.scale-bar div {
-    flex:1;
-    padding:8px;
-    text-align:center;
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
-}
-.scale-bar div:nth-child(-n+3) { background:#d32f2f; }
-.scale-bar div:nth-child(n+4):nth-child(-n+6) { background:#fbc02d; color:black; }
-.scale-bar div:nth-child(n+7) { background:#2e7d32; }
-.selected { outline:3px solid black; }
-.pupil-bar {
-    display:flex;
-    gap:8px;
-    margin-bottom:15px;
-}
-.pupil-bar select { flex:2; }
-.pupil-bar button { flex:1; }
-.total-hours { font-weight:bold; margin-bottom:15px; }
-.hidden-print { display:block; }
-pre.reflection {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    min-height:80px;
-    border:1px solid #ccc;
-    padding:10px;
-    border-radius:8px;
-    background:white;
-    font-family: Arial, sans-serif;
-    font-size:16px;
-    margin-bottom:15px;
-}
-</style>
+  <style>
+    body { font-family: Arial, sans-serif; padding:20px; max-width:900px; margin:auto; background:#f4f4f4; }
+    h1 { text-align:center; }
+    input, textarea, select {
+      width:100%; padding:10px; margin-bottom:15px; border-radius:8px;
+      border:1px solid #ccc; font-size:16px; box-sizing:border-box;
+    }
+    textarea { min-height:120px; resize:vertical; }
+    button {
+      width:100%; padding:12px; margin:8px 0; border:none; border-radius:8px;
+      font-size:16px; cursor:pointer; color:white;
+    }
+    #generatePdf { background:#0066cc; }
+    #emailPdf   { background:#2e7d32; }
+    #exportHistory { background:#d32f2f; }
+    .scale-bar { display:flex; margin-bottom:15px; }
+    .scale-bar div {
+      flex:1; padding:10px; text-align:center; color:white; font-weight:bold; cursor:pointer;
+    }
+    .scale-bar div:nth-child(-n+3) { background:#d32f2f; }
+    .scale-bar div:nth-child(n+4):nth-child(-n+6) { background:#fbc02d; color:black; }
+    .scale-bar div:nth-child(n+7) { background:#2e7d32; }
+    .selected { outline:4px solid #000; }
+    .pupil-bar { display:flex; gap:10px; margin-bottom:20px; }
+    .pupil-bar select { flex:3; }
+    .pupil-bar button { flex:1; }
+    .total-hours { font-weight:bold; font-size:1.2em; margin:15px 0; }
+    .section-title { font-weight:bold; margin:20px 0 8px; font-size:1.1em; }
+  </style>
 </head>
-
 <body>
 
 <div id="formArea">
 
-<h1>LEARNER REFLECTIVE LOG</h1>
-<p><strong>Instructor:</strong> Alex Heirani</p>
-<p><strong>Date:</strong> <span id="date"></span></p>
+  <h1>LEARNER REFLECTIVE LOG</h1>
+  <p><strong>Instructor:</strong> Alex Heirani</p>
+  <p><strong>Date:</strong> <span id="date"></span></p>
 
-<div class="pupil-bar hidden-print">
+  <div class="pupil-bar">
     <select id="pupilSelect"></select>
-    <button onclick="addPupil()">Add</button>
+    <button onclick="addPupil()">Add Pupil</button>
     <button onclick="deletePupil()">Delete</button>
-</div>
+  </div>
 
-<p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
+  <div class="total-hours">Total Hours: <span id="totalHours">0</span></div>
 
-<label class="hidden-print">Lesson Duration (hours):</label>
-<input class="hidden-print" type="number" step="0.5" id="lessonHours">
+  <div class="section-title">Lesson Duration (hours)</div>
+  <input type="number" step="0.25" id="lessonHours" min="0" value="2">
 
-<label>Lesson Goal:</label>
-<textarea id="goal"></textarea>
+  <div class="section-title">Lesson Goal</div>
+  <textarea id="goal" placeholder="What was the main aim of the lesson?"></textarea>
 
-<label>Initial Self Rating:</label>
-<div class="scale-bar" id="scale1"></div>
+  <div class="section-title">Initial Self Rating (1–10)</div>
+  <div class="scale-bar" id="scale1"></div>
 
-<label>What didn’t go well?</label>
-<textarea id="improve"></textarea>
+  <div class="section-title">What went well?</div>
+  <textarea id="well"></textarea>
 
-<label>What could you do differently?</label>
-<textarea id="different"></textarea>
+  <div class="section-title">What didn’t go well? / What could you do differently?</div>
+  <textarea id="improve"></textarea>
 
-<label>What went well?</label>
-<textarea id="well"></textarea>
+  <div class="section-title">Did you achieve the goal? / Reflections</div>
+  <textarea id="achieved"></textarea>
 
-<label>Did you achieve the goal?</label>
-<textarea id="achieved"></textarea>
+  <div class="section-title">Final Self Rating (1–10)</div>
+  <div class="scale-bar" id="scale2"></div>
 
-<label>Final Self Rating:</label>
-<div class="scale-bar" id="scale2"></div>
+  <div class="section-title">Additional Comments</div>
+  <textarea id="comments"></textarea>
 
-<label>Additional Comments:</label>
-<textarea id="comments"></textarea>
-
-<div class="hidden-print">
-    <button onclick="generateLessonPDF()">Generate Lesson PDF</button>
-    <button id="emailBtn">Generate & Email Reflective Log</button>
-    <button onclick="exportHistoryPDF()">Export Full Pupil Progress</button>
-</div>
+  <button id="generatePdf">Generate PDF</button>
+  <button id="emailPdf">Generate & Email PDF</button>
+  <button id="exportHistory">Export Full Progress PDF</button>
 
 </div>
 
 <script>
-document.getElementById("date").innerText = 
-    new Date().toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
+// ────────────────────────────────────────────────
+document.getElementById("date").innerText =
+  new Date().toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
 
 let pupils = JSON.parse(localStorage.getItem("adiPupilsV3")) || {};
 let currentPupil = null;
 
-function save() { 
-    localStorage.setItem("adiPupilsV3", JSON.stringify(pupils)); 
-}
+function save() { localStorage.setItem("adiPupilsV3", JSON.stringify(pupils)); }
 
 function loadDropdown() {
-    let select = document.getElementById("pupilSelect");
-    select.innerHTML = "";
-    let names = Object.keys(pupils);
-
-    if (names.length === 0) {
-        currentPupil = null;
-        document.getElementById("totalHours").innerText = "0";
-        return;
-    }
-
-    names.forEach(name => {
-        let opt = document.createElement("option");
-        opt.value = name;
-        opt.text = name;
-        select.appendChild(opt);
-    });
-
-    if (!currentPupil || !pupils[currentPupil]) currentPupil = names[0];
+  const select = document.getElementById("pupilSelect");
+  select.innerHTML = '<option value="">— Select pupil —</option>';
+  Object.keys(pupils).forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    select.appendChild(opt);
+  });
+  if (currentPupil && pupils[currentPupil]) {
     select.value = currentPupil;
-    updateDisplay();
+  } else if (Object.keys(pupils).length > 0) {
+    currentPupil = Object.keys(pupils)[0];
+    select.value = currentPupil;
+  }
+  updateDisplay();
 }
 
 function addPupil() {
-    let name = prompt("Enter pupil name:");
-    if (!name) return;
-    if (!pupils[name]) pupils[name] = {hours: 0, lessons: []};
+  let name = prompt("Pupil name:");
+  if (!name?.trim()) return;
+  name = name.trim();
+  if (!pupils[name]) {
+    pupils[name] = { hours: 0, lessons: [] };
     currentPupil = name;
     save();
     loadDropdown();
+  }
 }
 
 function deletePupil() {
-    if (!currentPupil) return;
-    if (confirm("Delete " + currentPupil + "?")) {
-        delete pupils[currentPupil];
-        save();
-        currentPupil = null;
-        loadDropdown();
-    }
+  if (!currentPupil) return;
+  if (confirm(`Delete pupil "${currentPupil}" and all data?`)) {
+    delete pupils[currentPupil];
+    currentPupil = null;
+    save();
+    loadDropdown();
+  }
 }
 
-document.getElementById("pupilSelect").addEventListener("change", function() {
-    currentPupil = this.value;
-    updateDisplay();
-});
+document.getElementById("pupilSelect").onchange = e => {
+  currentPupil = e.target.value || null;
+  updateDisplay();
+};
 
 function updateDisplay() {
-    if (!currentPupil) return;
-    document.getElementById("totalHours").innerText = pupils[currentPupil].hours;
+  document.getElementById("totalHours").textContent = currentPupil ? pupils[currentPupil]?.hours || 0 : 0;
 }
 
 function createScale(id) {
-    for (let i = 1; i <= 10; i++) {
-        let div = document.createElement("div");
-        div.innerText = i;
-        div.onclick = function() {
-            [...this.parentElement.children].forEach(c => c.classList.remove("selected"));
-            this.classList.add("selected");
-            this.parentElement.setAttribute("data-value", i);
-        };
-        document.getElementById(id).appendChild(div);
-    }
+  const container = document.getElementById(id);
+  for (let i = 1; i <= 10; i++) {
+    const div = document.createElement("div");
+    div.textContent = i;
+    div.onclick = () => {
+      [...container.children].forEach(c => c.classList.remove("selected"));
+      div.classList.add("selected");
+      container.dataset.value = i;
+    };
+    container.appendChild(div);
+  }
 }
 createScale("scale1");
 createScale("scale2");
 
-function saveLessonData() {
-    let hours = parseFloat(document.getElementById("lessonHours").value) || 0;
-    let lesson = {date: document.getElementById("date").innerText, hours: hours};
-    pupils[currentPupil].hours += hours;
-    pupils[currentPupil].lessons.push(lesson);
-    save();
-    updateDisplay();
+function getFormData() {
+  return {
+    date: document.getElementById("date").textContent,
+    hours: parseFloat(document.getElementById("lessonHours").value) || 0,
+    goal: document.getElementById("goal").value.trim(),
+    initialRating: document.getElementById("scale1").dataset.value || "—",
+    well: document.getElementById("well").value.trim(),
+    improve: document.getElementById("improve").value.trim(),
+    achieved: document.getElementById("achieved").value.trim(),
+    finalRating: document.getElementById("scale2").dataset.value || "—",
+    comments: document.getElementById("comments").value.trim(),
+  };
 }
 
-async function generateLessonPDF(shouldEmail = false) {
-    if (!currentPupil) {
-        alert("Select a pupil first.");
-        return;
-    }
-    saveLessonData();
-
-    let buttons = document.querySelectorAll(".hidden-print");
-    buttons.forEach(b => b.style.display = "none");
-
-    // Replace textareas with pre elements to preserve newlines in PDF
-    let textareas = document.querySelectorAll('#formArea textarea');
-    let replacements = [];
-    textareas.forEach(ta => {
-        let pre = document.createElement('pre');
-        pre.className = 'reflection';
-        pre.textContent = ta.value;
-        ta.parentNode.insertBefore(pre, ta);
-        ta.style.display = 'none';
-        replacements.push({ta, pre});
+function saveLesson() {
+  if (!currentPupil) return;
+  const data = getFormData();
+  if (data.hours > 0) {
+    pupils[currentPupil].hours += data.hours;
+    pupils[currentPupil].lessons.push({
+      date: data.date,
+      hours: data.hours,
+      summary: data.goal.slice(0,60) + (data.goal.length > 60 ? "..." : "")
     });
+    save();
+    updateDisplay();
+  }
+}
 
-    let canvas = await html2canvas(document.getElementById("formArea"), {scale: 2});
+function buildPdfContent() {
+  const d = getFormData();
+  const now = new Date().toLocaleDateString('en-GB');
 
-    // Restore original textareas
-    replacements.forEach(({ta, pre}) => {
-        ta.style.display = '';
-        pre.remove();
-    });
+  return [
+    { text: "REFLECTIVE LOG", style: "header", margin: [0,0,0,20] },
+    { text: `Instructor: Alex Heirani`, margin: [0,0,0,8] },
+    { text: `Date: ${d.date}`, margin: [0,0,0,8] },
+    { text: `Total Hours: ${pupils[currentPupil]?.hours || 0}`, bold: true, margin: [0,12,0,20] },
 
-    const { jsPDF } = window.jspdf;
-    let pdf = new jsPDF("p", "mm", "a4");
+    { text: "Lesson Duration", style: "subheader" },
+    { text: d.hours + " hours", margin: [0,0,0,12] },
 
-    let pageWidth  = pdf.internal.pageSize.getWidth();
-    let pageHeight = pdf.internal.pageSize.getHeight();
+    { text: "Lesson Goal", style: "subheader" },
+    { text: d.goal || "—", margin: [0,0,0,16] },
 
-    let imgWidth  = pageWidth;
-    let imgHeight = canvas.height * imgWidth / canvas.width;
+    { columns: [
+      { width: "50%", text: "Initial Self Rating: " + d.initialRating + " / 10", bold: true },
+      { width: "50%", text: "Final Self Rating: " + d.finalRating + " / 10", bold: true, alignment: "right" }
+    ], margin: [0,0,0,20] },
 
-    let pageCanvas = document.createElement("canvas");
-    let ctx = pageCanvas.getContext("2d");
+    { text: "What went well?", style: "subheader" },
+    { text: d.well || "—", margin: [0,0,0,16] },
 
-    let pageHeightPx = canvas.width * pageHeight / pageWidth;
-    let totalPages = Math.ceil(canvas.height / pageHeightPx);
+    { text: "What didn’t go well? / What could you do differently?", style: "subheader" },
+    { text: d.improve || "—", margin: [0,0,0,16] },
 
-    for (let i = 0; i < totalPages; i++) {
-        pageCanvas.width = canvas.width;
-        pageCanvas.height = pageHeightPx;
+    { text: "Did you achieve the goal? / Reflections", style: "subheader" },
+    { text: d.achieved || "—", margin: [0,0,0,16] },
 
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-        ctx.drawImage(canvas, 0, i * pageHeightPx, canvas.width, pageHeightPx, 0, 0, canvas.width, pageHeightPx);
+    { text: "Additional Comments", style: "subheader" },
+    { text: d.comments || "—", margin: [0,0,0,20] },
 
-        if (i > 0) pdf.addPage();
-        pdf.addImage(pageCanvas.toDataURL("image/png"), "PNG", 0, 0, imgWidth, imgHeight);
-    }
+    { text: `Generated on ${now}`, fontSize: 9, italics: true, alignment: "center", margin: [0,30,0,0] }
+  ];
+}
 
-    // Prepare filename and subject
-    let today = new Date().toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
-    let filename = `Reflective_Log_${currentPupil.replace(/\s+/g,'_')}_${today.replace(/ /g,'_')}.pdf`;
-    let subject = `Reflective Log – ${currentPupil} – ${today}`;
+const styles = {
+  header:    { fontSize: 22, bold: true, alignment: "center" },
+  subheader: { fontSize: 14, bold: true, margin: [0,16,0,6] }
+};
 
-    // Get PDF as blob and create temporary URL
-    let pdfBlob = pdf.output('blob');
-    let pdfUrl = URL.createObjectURL(pdfBlob);
+function generateAndDownload(filenameSuffix = "") {
+  if (!currentPupil) {
+    alert("Please select a pupil first.");
+    return null;
+  }
+  saveLesson();
 
-    // Prepare email body with download link
-    let body = `Dear recipient,
+  const docDefinition = {
+    pageSize: "A4",
+    pageMargins: [40, 60, 40, 60],
+    content: buildPdfContent(),
+    styles: styles,
+    defaultStyle: { fontSize: 11, lineHeight: 1.4 }
+  };
 
-Please find attached the reflective log for ${currentPupil} dated ${today}.
+  pdfMake.createPdf(docDefinition).download(`Reflective_Log_${currentPupil}_${filenameSuffix}.pdf`);
+  return docDefinition;
+}
 
-You can also download/view it directly here: ${pdfUrl}
+document.getElementById("generatePdf").onclick = () => {
+  generateAndDownload(new Date().toISOString().slice(0,10));
+};
+
+document.getElementById("emailPdf").onclick = () => {
+  if (!currentPupil) {
+    alert("Select a pupil first.");
+    return;
+  }
+
+  const today = new Date().toLocaleDateString('en-GB');
+  const subject = `Reflective Log – ${currentPupil} – ${today}`;
+
+  const body = `Dear recipient,
+
+Attached is the reflective log for ${currentPupil} (${today}).
 
 Best regards,
 Alex Heirani`;
 
-    let mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  // Generate PDF blob
+  const dd = buildPdfContent();
+  const pdfDoc = pdfMake.createPdf({
+    ...dd,
+    pageSize: "A4",
+    pageMargins: [40,60,40,60],
+    content: dd,
+    styles: styles
+  });
 
-    if (shouldEmail) {
-        // Try to open email client
-        window.location.href = mailtoLink;
+  pdfDoc.getBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-        // Also trigger download as backup / extra copy
-        let a = document.createElement('a');
-        a.href = pdfUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+    window.location.href = mailto;
 
-        alert("Email client should now open.\n\nThe PDF has been attached (in supported clients) and a download link included in the message.\nA copy has also been downloaded.");
-    } else {
-        // Just download
-        let a = document.createElement('a');
-        a.href = pdfUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
+    // Also offer download
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Reflective_Log_${currentPupil}_${today.replace(/ /g,"_")}.pdf`;
+    a.click();
 
-    buttons.forEach(b => b.style.display = "block");
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  });
+};
 
-    // Clean up blob URL after 60 seconds
-    setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000);
-}
+document.getElementById("exportHistory").onclick = () => {
+  if (!currentPupil) {
+    alert("Select a pupil first.");
+    return;
+  }
 
-function exportHistoryPDF() {
-    if (!currentPupil) {
-        alert("Select a pupil first.");
-        return;
-    }
-    const { jsPDF } = window.jspdf;
-    let pdf = new jsPDF();
-    let y = 20;
-    pdf.text("Full Progress - " + currentPupil, 15, 10);
+  const lessons = pupils[currentPupil].lessons || [];
+  const content = [
+    { text: `Progress – ${currentPupil}`, style: "header", margin: [0,0,0,20] },
+    ...lessons.map((l, i) => ({
+      text: `Lesson ${i+1}   ${l.date}   ${l.hours} hrs   ${l.summary || ""}`,
+      margin: [0,0,0,8]
+    }))
+  ];
 
-    pupils[currentPupil].lessons.forEach((l, i) => {
-        pdf.text(`Lesson ${i+1} - ${l.date} - ${l.hours} hrs`, 15, y);
-        y += 10;
-        if (y > 270) {
-            pdf.addPage();
-            y = 20;
-        }
-    });
-    pdf.save("Progress_" + currentPupil + ".pdf");
-}
+  pdfMake.createPdf({
+    content,
+    styles: { header: { fontSize: 18, bold: true, alignment: "center" } },
+    pageMargins: [40, 60, 40, 60]
+  }).download(`Progress_${currentPupil}.pdf`);
+};
 
-// Attach email functionality to the new button
-document.getElementById("emailBtn").onclick = () => generateLessonPDF(true);
-
-// Initial load
+// Init
 loadDropdown();
 </script>
-
 </body>
 </html>
