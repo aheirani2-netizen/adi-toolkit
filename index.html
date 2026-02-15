@@ -2,167 +2,197 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADI Instructor Toolkit</title>
+<title>Learner Reflective Log</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; transition: 0.3s; }
-h1, h2 { text-align: center; }
-textarea, input, select { width: 100%; padding: 8px; margin-bottom: 15px; font-size: 16px; }
-button { padding: 12px; width: 100%; margin-bottom: 10px; font-size: 16px; }
-.section { border-top: 1px solid #ccc; padding-top: 15px; margin-top: 20px; }
-.dark { background-color: #1c1c1e; color: white; }
-.dark textarea, .dark input, .dark select { background-color: #2c2c2e; color: white; border: 1px solid #444; }
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    background: #f5f5f5;
+    transition: 0.3s;
+}
+
+h1 {
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.section {
+    margin-bottom: 20px;
+}
+
+.scale-bar {
+    display: flex;
+}
+
+.scale-bar div {
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.scale-bar div:nth-child(-n+3) { background: #d32f2f; }
+.scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color:black;}
+.scale-bar div:nth-child(n+7) { background: #2e7d32; }
+
+.selected {
+    outline: 3px solid black;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.dark {
+    background: #1c1c1e;
+    color: white;
+}
+
+.dark input, .dark textarea {
+    background: #2c2c2e;
+    color: white;
+    border: 1px solid #444;
+}
 </style>
 </head>
 
 <body>
 
-<h1>ADI Instructor Toolkit</h1>
-<h2>Instructor: Alex Heirani</h2>
+<h1>LEARNER REFLECTIVE LOG</h1>
+
+<p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
 
-<div class="section">
-<label>Select / Add Pupil</label>
-<select id="pupilSelect" onchange="loadPupil()"></select>
-<input type="text" id="newPupil" placeholder="Add New Pupil">
-<button onclick="addPupil()">Add Pupil</button>
-</div>
+<label>Name:</label>
+<input type="text" id="name">
 
-<div class="section">
-<label>Lesson Objective</label>
-<textarea id="objective"></textarea>
+<label>Lesson goal to be agreed with learner:</label>
+<textarea id="goal"></textarea>
 
-<label>Self Evaluation (1–10)</label>
-<input type="number" id="rating" min="1" max="10" value="5">
+<label>How would you scale yourself on today's lesson goal?</label>
+<div class="scale-bar" id="scale1"></div>
 
-<label>Strengths</label>
-<textarea id="strengths"></textarea>
+<label>What do you think didn’t go well, how can you look to improve?</label>
+<textarea id="improve" placeholder="What went wrong? What caused it? How can I fix it?"></textarea>
 
-<label>Development Areas</label>
-<textarea id="development"></textarea>
+<label>What could you do differently next time to make it better:</label>
+<textarea id="different"></textarea>
 
-<label>Agreed Action Plan</label>
-<textarea id="action"></textarea>
-</div>
+<label>What did you do well today:</label>
+<textarea id="well"></textarea>
 
-<div class="section">
-<h3>Risk Management</h3>
-<select id="risk">
-<option value="Low">Low Risk</option>
-<option value="Medium">Medium Risk</option>
-<option value="High">High Risk</option>
+<label>Do you feel that you achieved what was set out on the lesson goal today?</label>
+<textarea id="achieved"></textarea>
+
+<label>How would I scale myself now after today's lesson?</label>
+<div class="scale-bar" id="scale2"></div>
+
+<label>Additional Comments:</label>
+<textarea id="comments"></textarea>
+
+<label>Was there any safety critical incidents?</label>
+<select id="safety">
+<option>No</option>
+<option>Yes</option>
 </select>
-</div>
 
-<div class="section">
-<h3>ADI Part 3 Competency Tracker</h3>
-<div id="competencies"></div>
-</div>
+<label>If YES – What happened?</label>
+<textarea id="incident"></textarea>
 
-<div class="section">
-<button onclick="saveLesson()">Save Lesson</button>
+<label>Do I think the goal set was achieved today by the learner?</label>
+<textarea id="goalAchieved"></textarea>
+
+<label>Notes:</label>
+<textarea id="notes"></textarea>
+
 <button onclick="generatePDF()">Generate Professional PDF</button>
-<button onclick="emailReport()">Email Report</button>
 <button onclick="toggleDark()">Toggle Dark Mode</button>
-</div>
 
 <script>
 document.getElementById("date").innerText =
-new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 
-const competencies = [
-"Lesson Planning","Risk Management","Client-Centred Learning","Communication","Feedback Quality",
-"Instruction Clarity","Adaptability","Safety Awareness","Independent Driving","Fault Identification",
-"Remedial Action","Pupil Engagement","Goal Setting","Progress Tracking","Professionalism","Time Management","Reflective Practice"
-];
-
-competencies.forEach((c,i)=>{
-document.getElementById("competencies").innerHTML +=
-`<label><input type="checkbox" id="comp${i}"> ${c}</label><br>`;
-});
-
-function addPupil(){
-const name = document.getElementById("newPupil").value.trim();
-if(!name) return;
-let pupils = JSON.parse(localStorage.getItem("pupils")||"[]");
-if(!pupils.includes(name)) pupils.push(name);
-localStorage.setItem("pupils",JSON.stringify(pupils));
-loadPupilList();
-document.getElementById("newPupil").value="";
-}
-
-function loadPupilList(){
-let pupils = JSON.parse(localStorage.getItem("pupils")||"[]");
-let select = document.getElementById("pupilSelect");
-select.innerHTML="";
-pupils.forEach(p=>{select.innerHTML += `<option value="${p}">${p}</option>`;});
-}
-
-function loadPupil(){
-const pupil = document.getElementById("pupilSelect").value;
-if(!pupil) return;
-const lesson = JSON.parse(localStorage.getItem("lesson_"+pupil)||"{}");
-objective.value = lesson.objective||"";
-rating.value = lesson.rating||5;
-strengths.value = lesson.strengths||"";
-development.value = lesson.development||"";
-action.value = lesson.action||"";
-risk.value = lesson.risk||"Low";
-}
-
-function saveLesson(){
-const pupil = document.getElementById("pupilSelect").value;
-if(!pupil) return alert("Select a pupil");
-const lesson = {
-objective: objective.value,
-rating: rating.value,
-strengths: strengths.value,
-development: development.value,
-action: action.value,
-risk: risk.value
+function createScale(id){
+for(let i=1;i<=10;i++){
+let div=document.createElement("div");
+div.innerText=i;
+div.onclick=function(){
+[...this.parentElement.children].forEach(c=>c.classList.remove("selected"));
+this.classList.add("selected");
+this.parentElement.setAttribute("data-value",i);
 };
-localStorage.setItem("lesson_"+pupil,JSON.stringify(lesson));
-alert("Lesson saved for "+pupil);
+document.getElementById(id).appendChild(div);
 }
+}
+createScale("scale1");
+createScale("scale2");
 
-function formatBullets(text){return text.split("\n").map(line=>"• "+line).join("\n");}
+function getScale(id){
+return document.getElementById(id).getAttribute("data-value")||"";
+}
 
 function buildReport(){
-const pupil = document.getElementById("pupilSelect").value||"";
 return `
-DVSA LESSON RECORD
+LEARNER REFLECTIVE LOG
 
 Instructor: Alex Heirani
-Pupil: ${pupil}
 Date: ${document.getElementById("date").innerText}
+Name: ${name.value}
 
------------------------------------------
+Lesson Goal:
+${goal.value}
 
-Lesson Objective:
-${objective.value}
+Initial Self Rating: ${getScale("scale1")}/10
 
-Self Evaluation:
-${rating.value} / 10
+What didn’t go well:
+${improve.value}
 
-Strengths Demonstrated:
-${formatBullets(strengths.value)}
+What to do differently:
+${different.value}
 
-Areas for Development:
-${formatBullets(development.value)}
+What went well:
+${well.value}
 
-Agreed Action Plan:
-${formatBullets(action.value)}
+Goal achieved today?
+${achieved.value}
 
-Risk Level: ${risk.value}
+Final Self Rating: ${getScale("scale2")}/10
 
------------------------------------------
+Additional Comments:
+${comments.value}
 
-Competencies:
-${competencies.map((c,i)=>document.getElementById("comp"+i).checked?"✔ "+c:"✖ "+c).join("\n")}
+Safety Incident: ${safety.value}
+Incident Details:
+${incident.value}
 
------------------------------------------
+Instructor View – Goal Achieved:
+${goalAchieved.value}
+
+Notes:
+${notes.value}
 
 Instructor: Alex Heirani
 `;
@@ -171,21 +201,14 @@ Instructor: Alex Heirani
 function generatePDF(){
 const { jsPDF } = window.jspdf;
 const doc = new jsPDF();
-doc.setFontSize(16);
-doc.text("DVSA LESSON RECORD", 20, 20);
 doc.setFontSize(12);
-doc.text(buildReport(),20,30);
-doc.save("DVSA_Lesson_Record.pdf");
+doc.text(doc.splitTextToSize(buildReport(),180),15,20);
+doc.save("Learner_Reflective_Log.pdf");
 }
 
-function emailReport(){
-const body = buildReport();
-window.location.href = "mailto:?subject=DVSA Lesson Record&body="+encodeURIComponent(body);
+function toggleDark(){
+document.body.classList.toggle("dark");
 }
-
-function toggleDark(){document.body.classList.toggle("dark");}
-
-loadPupilList();
 </script>
 
 </body>
