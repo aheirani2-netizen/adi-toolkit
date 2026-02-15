@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Learner Reflective Log</title>
+<title>ADI Reflective Log</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -12,7 +12,7 @@ body {
     padding: 20px;
     max-width: 900px;
     margin: auto;
-    background: #f5f5f5;
+    background: #f4f4f4;
     transition: 0.3s;
 }
 
@@ -21,7 +21,7 @@ h1 {
     letter-spacing: 1px;
 }
 
-input, textarea {
+input, textarea, select {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
@@ -31,12 +31,11 @@ input, textarea {
     font-size: 16px;
 }
 
-.section {
-    margin-bottom: 20px;
-}
+textarea { min-height: 80px; }
 
 .scale-bar {
     display: flex;
+    margin-bottom: 15px;
 }
 
 .scale-bar div {
@@ -49,12 +48,10 @@ input, textarea {
 }
 
 .scale-bar div:nth-child(-n+3) { background: #d32f2f; }
-.scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color:black;}
+.scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color:black; }
 .scale-bar div:nth-child(n+7) { background: #2e7d32; }
 
-.selected {
-    outline: 3px solid black;
-}
+.selected { outline: 3px solid black; }
 
 button {
     width: 100%;
@@ -71,10 +68,22 @@ button {
     color: white;
 }
 
-.dark input, .dark textarea {
+.dark input, .dark textarea, .dark select {
     background: #2c2c2e;
     color: white;
     border: 1px solid #444;
+}
+
+.about-box {
+    background: #e0e0e0;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.dark .about-box {
+    background: #2c2c2e;
 }
 </style>
 </head>
@@ -86,50 +95,60 @@ button {
 <p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
 
-<label>Name:</label>
+<label>Learner Name:</label>
 <input type="text" id="name">
 
-<label>Lesson goal to be agreed with learner:</label>
+<label>Lesson goal agreed with learner:</label>
 <textarea id="goal"></textarea>
 
-<label>How would you scale yourself on today's lesson goal?</label>
+<label>Initial self-rating (1–10):</label>
 <div class="scale-bar" id="scale1"></div>
 
-<label>What do you think didn’t go well, how can you look to improve?</label>
-<textarea id="improve" placeholder="What went wrong? What caused it? How can I fix it?"></textarea>
+<label>What didn’t go well? How can you improve?</label>
+<textarea id="improve"></textarea>
 
-<label>What could you do differently next time to make it better:</label>
+<label>What could you do differently next time?</label>
 <textarea id="different"></textarea>
 
-<label>What did you do well today:</label>
+<label>What did you do well?</label>
 <textarea id="well"></textarea>
 
-<label>Do you feel that you achieved what was set out on the lesson goal today?</label>
+<label>Did you achieve the lesson goal today?</label>
 <textarea id="achieved"></textarea>
 
-<label>How would I scale myself now after today's lesson?</label>
+<label>Final self-rating (1–10):</label>
 <div class="scale-bar" id="scale2"></div>
 
 <label>Additional Comments:</label>
 <textarea id="comments"></textarea>
 
-<label>Was there any safety critical incidents?</label>
+<label>Any safety critical incidents?</label>
 <select id="safety">
 <option>No</option>
 <option>Yes</option>
 </select>
 
-<label>If YES – What happened?</label>
+<label>If yes – what happened?</label>
 <textarea id="incident"></textarea>
 
-<label>Do I think the goal set was achieved today by the learner?</label>
+<label>Instructor view – was the goal achieved?</label>
 <textarea id="goalAchieved"></textarea>
 
-<label>Notes:</label>
+<label>Instructor Notes:</label>
 <textarea id="notes"></textarea>
 
 <button onclick="generatePDF()">Generate Professional PDF</button>
+<button onclick="sendEmail()">Send Email (Summary)</button>
+<button onclick="emailWithPDF()">Email with PDF Attached</button>
 <button onclick="toggleDark()">Toggle Dark Mode</button>
+
+<div class="about-box">
+<strong>About This Tool</strong><br><br>
+This reflective log tool is designed for ADI lesson structure and Part 3 standards check preparation.
+It supports client-centred learning, structured reflection, and professional documentation.
+<br><br>
+Instructor: Alex Heirani
+</div>
 
 <script>
 document.getElementById("date").innerText =
@@ -160,12 +179,12 @@ LEARNER REFLECTIVE LOG
 
 Instructor: Alex Heirani
 Date: ${document.getElementById("date").innerText}
-Name: ${name.value}
+Learner: ${name.value}
 
 Lesson Goal:
 ${goal.value}
 
-Initial Self Rating: ${getScale("scale1")}/10
+Initial Rating: ${getScale("scale1")}/10
 
 What didn’t go well:
 ${improve.value}
@@ -176,25 +195,23 @@ ${different.value}
 What went well:
 ${well.value}
 
-Goal achieved today?
+Goal Achieved:
 ${achieved.value}
 
-Final Self Rating: ${getScale("scale2")}/10
+Final Rating: ${getScale("scale2")}/10
 
 Additional Comments:
 ${comments.value}
 
 Safety Incident: ${safety.value}
-Incident Details:
+Details:
 ${incident.value}
 
-Instructor View – Goal Achieved:
+Instructor View:
 ${goalAchieved.value}
 
 Notes:
 ${notes.value}
-
-Instructor: Alex Heirani
 `;
 }
 
@@ -204,6 +221,21 @@ const doc = new jsPDF();
 doc.setFontSize(12);
 doc.text(doc.splitTextToSize(buildReport(),180),15,20);
 doc.save("Learner_Reflective_Log.pdf");
+}
+
+function sendEmail(){
+let subject = `Lesson Reflection – ${name.value}`;
+let body = buildReport();
+window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function emailWithPDF(){
+generatePDF();
+setTimeout(function(){
+let subject = `Lesson Reflection – ${name.value}`;
+let body = "Please find attached your lesson reflection PDF.\n\nInstructor: Alex Heirani";
+window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+},800);
 }
 
 function toggleDark(){
