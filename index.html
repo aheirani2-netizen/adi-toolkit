@@ -6,7 +6,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body { font-family: Arial; padding:20px; max-width:900px; margin:auto; background:#f4f4f4; transition:0.3s;}
+body { font-family: Arial; padding:20px; max-width:900px; margin:auto; background:#f4f4f4; }
 h1{text-align:center;}
 input,textarea,select{width:100%;padding:10px;margin-bottom:15px;border-radius:8px;border:1px solid #ccc;font-size:16px;}
 textarea{min-height:80px;}
@@ -17,12 +17,10 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;fon
 .scale-bar div:nth-child(n+4):nth-child(-n+6){background:#fbc02d;color:black;}
 .scale-bar div:nth-child(n+7){background:#2e7d32;}
 .selected{outline:3px solid black;}
-.dark{background:#1c1c1e;color:white;}
-.dark input,.dark textarea,.dark select{background:#2c2c2e;color:white;border:1px solid #444;}
-.total-hours{font-weight:bold;margin-bottom:15px;}
 .pupil-bar{display:flex;gap:8px;margin-bottom:15px;}
 .pupil-bar select{flex:2;}
 .pupil-bar button{flex:1;}
+.total-hours{font-weight:bold;margin-bottom:15px;}
 </style>
 </head>
 
@@ -36,7 +34,6 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;fon
 <select id="pupilSelect"></select>
 <button onclick="addPupil()">Add</button>
 <button onclick="deletePupil()">Delete</button>
-<button onclick="exportPupil()">Export</button>
 </div>
 
 <p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
@@ -50,28 +47,11 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;fon
 <label>Initial Rating:</label>
 <div class="scale-bar" id="scale1"></div>
 
-<label>What didn’t go well?</label>
-<textarea id="improve"></textarea>
-
-<label>What to do differently?</label>
-<textarea id="different"></textarea>
-
-<label>What went well?</label>
-<textarea id="well"></textarea>
-
-<label>Goal achieved?</label>
-<textarea id="achieved"></textarea>
-
 <label>Final Rating:</label>
 <div class="scale-bar" id="scale2"></div>
 
-<label>Agreed lesson goal dor next lesson:</label>
-<textarea id="comments"></textarea>
-
 <button onclick="generatePDF()">Generate PDF</button>
-<button onclick="sendEmail()">Send Email</button>
 <button onclick="sharePDF()">Share PDF</button>
-<button onclick="toggleDark()">Dark Mode</button>
 
 <script>
 document.getElementById("date").innerText =
@@ -80,54 +60,57 @@ new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'
 let pupils = JSON.parse(localStorage.getItem("pupils")) || {};
 let currentPupil = null;
 
-function savePupils(){
+function saveData(){
 localStorage.setItem("pupils", JSON.stringify(pupils));
 }
 
 function refreshDropdown(){
 let select=document.getElementById("pupilSelect");
 select.innerHTML="";
-for(let name in pupils){
+let names=Object.keys(pupils);
+
+if(names.length===0){
+currentPupil=null;
+document.getElementById("totalHours").innerText="0";
+return;
+}
+
+names.forEach(name=>{
 let option=document.createElement("option");
 option.value=name;
 option.text=name;
 select.appendChild(option);
+});
+
+if(!currentPupil || !pupils[currentPupil]){
+currentPupil=names[0];
 }
-if(currentPupil) select.value=currentPupil;
+
+select.value=currentPupil;
+updateDisplay();
 }
 
 function addPupil(){
 let name=prompt("Enter pupil name:");
 if(!name) return;
+
 if(!pupils[name]){
 pupils[name]={hours:0};
-savePupils();
+saveData();
 }
+
 currentPupil=name;
 refreshDropdown();
-updateDisplay();
 }
 
 function deletePupil(){
 if(!currentPupil) return;
 if(confirm("Delete "+currentPupil+"?")){
 delete pupils[currentPupil];
-savePupils();
+saveData();
 currentPupil=null;
 refreshDropdown();
-document.getElementById("totalHours").innerText="0";
 }
-}
-
-function exportPupil(){
-if(!currentPupil) return alert("Select a pupil first.");
-let data = JSON.stringify(pupils[currentPupil], null, 2);
-let blob = new Blob([data], {type:"application/json"});
-let url = URL.createObjectURL(blob);
-let a = document.createElement("a");
-a.href = url;
-a.download = currentPupil+"_data.json";
-a.click();
 }
 
 document.getElementById("pupilSelect").addEventListener("change",function(){
@@ -137,15 +120,17 @@ updateDisplay();
 
 function updateDisplay(){
 if(!currentPupil) return;
-document.getElementById("totalHours").innerText=pupils[currentPupil].hours || 0;
+document.getElementById("totalHours").innerText=pupils[currentPupil].hours;
 }
 
-function updateHours(){
+function addHours(){
 if(!currentPupil) return;
 let hours=parseFloat(document.getElementById("lessonHours").value)||0;
+if(hours>0){
 pupils[currentPupil].hours+=hours;
-savePupils();
+saveData();
 updateDisplay();
+}
 }
 
 function createScale(id){
@@ -163,84 +148,43 @@ document.getElementById(id).appendChild(div);
 createScale("scale1");
 createScale("scale2");
 
-function getScale(id){
-return document.getElementById(id).getAttribute("data-value")||"";
-}
-
 function buildReport(){
-updateHours();
+addHours();
 return `
-LEARNER REFLECTIVE LOG
-
 Instructor: Alex Heirani
 Date: ${date.innerText}
 Pupil: ${currentPupil}
-Lesson Duration: ${lessonHours.value} hours
+Lesson Duration: ${lessonHours.value}
 Total Hours: ${pupils[currentPupil].hours}
-
-Lesson Goal:
-${goal.value}
-
-Initial Rating: ${getScale("scale1")}/10
-
-What didn’t go well:
-${improve.value}
-
-What to do differently:
-${different.value}
-
-What went well:
-${well.value}
-
-Goal Achieved:
-${achieved.value}
-
-Final Rating: ${getScale("scale2")}/10
-
-Additional Comments:
-${comments.value}
 `;
 }
 
 function generatePDF(){
+if(!currentPupil){alert("Select a pupil first.");return;}
 const { jsPDF } = window.jspdf;
 const doc = new jsPDF();
-doc.text(doc.splitTextToSize(buildReport(),180),15,20);
-doc.save("Lesson_Log_"+currentPupil+".pdf");
-}
-
-function sendEmail(){
-let subject=`Lesson Reflection – ${currentPupil}`;
-let body=buildReport();
-window.location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+doc.text(buildReport(),15,20);
+doc.save("Lesson_"+currentPupil+".pdf");
 }
 
 async function sharePDF(){
-if(!currentPupil){
-    alert("Please select a pupil first.");
-    return;
-}
+if(!currentPupil){alert("Select a pupil first.");return;}
 
 const { jsPDF } = window.jspdf;
 const doc = new jsPDF();
-doc.text(doc.splitTextToSize(buildReport(),180),15,20);
+doc.text(buildReport(),15,20);
+const blob = doc.output("blob");
+const file = new File([blob], "Lesson.pdf", { type: "application/pdf" });
 
-const pdfBlob = doc.output("blob");
-const file = new File([pdfBlob], `Lesson_Log_${currentPupil}.pdf`, { type: "application/pdf" });
-
-if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    await navigator.share({
-        files: [file],
-        title: "Lesson Reflection",
-        text: "Please find attached the lesson reflection log."
-    });
+if (navigator.share && navigator.canShare && navigator.canShare({ files:[file] })) {
+await navigator.share({
+files:[file],
+title:"Lesson Reflection"
+});
 } else {
-    alert("Sharing not supported on this device/browser.");
+doc.save("Lesson_"+currentPupil+".pdf");
+alert("Sharing not supported — PDF downloaded instead.");
 }
-}
-
-function toggleDark(){
-document.body.classList.toggle("dark");
 }
 
 refreshDropdown();
