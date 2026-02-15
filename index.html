@@ -14,6 +14,7 @@ body {
     background: #f4f4f4; 
 }
 h1 { text-align: center; margin-bottom: 20px; }
+
 input, textarea, select {
     width: 100%; 
     padding: 10px; 
@@ -24,11 +25,13 @@ input, textarea, select {
     box-sizing: border-box;
     background: white;
 }
+
 textarea { 
     min-height: 100px; 
     resize: vertical; 
     background: white;
 }
+
 button {
     width: 100%; 
     padding: 14px; 
@@ -40,11 +43,14 @@ button {
     cursor: pointer; 
     color: white;
 }
+
 button#bestPdfPhone { 
     background: linear-gradient(#ff6b6b, #ee5253); 
     font-size: 18px; 
 }
+
 .scale-bar { display: flex; margin-bottom: 20px; gap: 4px; }
+
 .scale-bar div {
     flex: 1; 
     padding: 10px; 
@@ -54,19 +60,24 @@ button#bestPdfPhone {
     cursor: pointer; 
     border-radius: 6px;
 }
+
 .scale-bar div:nth-child(-n+3) { background: #d32f2f; }
 .scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color: black; }
 .scale-bar div:nth-child(n+7) { background: #2e7d32; }
+
 .selected { outline: 4px solid #000; }
+
 .pupil-bar { display: flex; gap: 10px; margin-bottom: 20px; }
 .pupil-bar select { flex: 3; }
 .pupil-bar button { flex: 1; }
+
 .total-hours { 
     font-weight: bold; 
     font-size: 1.2em; 
     margin: 15px 0; 
     text-align: center; 
 }
+
 .instructions {
     background: white; 
     padding: 16px; 
@@ -75,68 +86,61 @@ button#bestPdfPhone {
     margin: 16px 0; 
     line-height: 1.5;
 }
-.hidden { display: none !important; }
 
-/* Very aggressive print rules for iOS Safari */
+.section-label {
+    margin-top: 16px;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+.print-section {
+    margin-bottom: 10px;
+}
+
+/* PRINT FIXES */
 @media print {
+
+  body {
+    background: white !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+  }
+
+  button,
   #bestPdfPhone,
-  #phoneInstructions,
-  footer, .footer, [role="contentinfo"], [data-print-hidden] {
+  footer {
     display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    width: 0 !important;
-    overflow: hidden !important;
   }
 
-  body, #formArea, input, textarea, select {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    -webkit-background-clip: padding-box !important;
-  }
-
-  textarea, input[type="text"], input[type="number"] {
-    background-color: #ffffff !important;
-    border: 1px solid #999 !important;
-    border-radius: 8px !important;
-    padding: 10px !important;
-    margin: 6px 0 12px 0 !important;
-    min-height: 80px !important;
-    box-sizing: border-box !important;
-    display: block !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid-column !important;
-    break-inside: avoid !important;
+  .print-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   .section-label {
-    margin-top: 16px !important;
-    margin-bottom: 4px !important;
+    margin-top: 10px !important;
+    margin-bottom: 2px !important;
     page-break-after: avoid !important;
   }
 
-  .section-label + textarea,
-  .section-label + input {
-    margin-top: 4px !important;
+  textarea, 
+  input[type="text"], 
+  input[type="number"] {
+
+    background: #ffffff !important;
+    border: 1px solid #999 !important;
+    border-radius: 6px !important;
+    padding: 6px !important;
+    margin: 4px 0 8px 0 !important;
+    min-height: 60px !important;
+
+    page-break-inside: auto !important;
+    break-inside: auto !important;
   }
 
-  h1, p, .total-hours, .scale-bar, .pupil-bar {
-    page-break-after: avoid !important;
-  }
-
-  body {
-    font-size: 13.5px !important;
-    line-height: 1.4 !important;
-    -webkit-print-color-adjust: exact !important;
-  }
-
-  /* Force white page background */
   @page {
     size: A4;
     margin: 10mm;
-    background: white;
   }
 }
 </style>
@@ -157,19 +161,89 @@ button#bestPdfPhone {
 
 <p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
 
-<div class="section-label">Lesson Duration (hours)</div>
-<input type="number" step="0.25" id="lessonHours" min="0" value="2">
+<div class="print-section">
+    <div class="section-label">Lesson Duration (hours)</div>
+    <input type="number" step="0.25" id="lessonHours" min="0" value="2">
+</div>
 
-<div class="section-label">Lesson Goal</div>
-<textarea id="goal"></textarea>
+<div class="print-section">
+    <div class="section-label">Lesson Goal</div>
+    <textarea id="goal"></textarea>
+</div>
 
-<div class="section-label">Initial Self Rating (1–10)</div>
-<div class="scale-bar" id="scale1"></div>
+<div class="print-section">
+    <div class="section-label">Initial Self Rating (1–10)</div>
+    <div class="scale-bar" id="scale1"></div>
+</div>
 
-<div class="section-label">What went well?</div>
-<textarea id="well"></textarea>
+<div class="print-section">
+    <div class="section-label">What went well?</div>
+    <textarea id="well"></textarea>
+</div>
 
-<div class="section-label">What didn’t go well? / What could you do differently?</div>
-<textarea id="improve"></textarea>
+<div class="print-section">
+    <div class="section-label">
+        What didn’t go well? / What could you do differently?
+    </div>
+    <textarea id="improve"></textarea>
+</div>
 
-<div class="section-label">Did you achieve the goal
+<div class="print-section">
+    <div class="section-label">Did you achieve the goal?</div>
+    <textarea id="achieved"></textarea>
+</div>
+
+</div>
+
+<script>
+document.getElementById("date").innerText = new Date().toLocaleDateString();
+
+// Rating scale
+function createScale(containerId) {
+    const container = document.getElementById(containerId);
+    for (let i = 1; i <= 10; i++) {
+        const div = document.createElement("div");
+        div.innerText = i;
+        div.onclick = () => {
+            [...container.children].forEach(c => c.classList.remove("selected"));
+            div.classList.add("selected");
+        };
+        container.appendChild(div);
+    }
+}
+createScale("scale1");
+
+// Pupil storage
+let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
+const pupilSelect = document.getElementById("pupilSelect");
+
+function refreshPupils() {
+    pupilSelect.innerHTML = "";
+    pupils.forEach((p, i) => {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = p.name + " (" + p.hours + "h)";
+        pupilSelect.appendChild(option);
+    });
+}
+refreshPupils();
+
+function addPupil() {
+    const name = prompt("Enter pupil name:");
+    if (!name) return;
+    pupils.push({ name: name, hours: 0 });
+    localStorage.setItem("pupils", JSON.stringify(pupils));
+    refreshPupils();
+}
+
+function deletePupil() {
+    const index = pupilSelect.value;
+    if (index === "") return;
+    pupils.splice(index, 1);
+    localStorage.setItem("pupils", JSON.stringify(pupils));
+    refreshPupils();
+}
+</script>
+
+</body>
+</html>
