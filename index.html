@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ADI Reflective Log</title>
 
+<!-- Keep your original jsPDF + html2canvas if you still want the automated button -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -32,13 +33,18 @@ textarea {
 }
 button {
     width: 100%;
-    padding: 12px;
-    margin: 8px 0;
+    padding: 14px;
+    margin: 12px 0;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: bold;
     cursor: pointer;
     color: white;
+}
+button#bestPdfPhone { 
+    background: linear-gradient(#ff6b6b, #ee5253); 
+    font-size: 18px; 
 }
 button#generatePdf { background: #0066cc; }
 button#emailPdf    { background: #2e7d32; }
@@ -74,28 +80,15 @@ button#exportHistory { background: #d32f2f; }
     margin: 15px 0; 
     text-align: center; 
 }
-.hidden-print { display: block; }
-.reflection-div {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    min-height: 100px;
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 8px;
-    background: white;
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.45;
-    color: #000;
-    box-sizing: border-box;
-    margin-bottom: 15px;
+.instructions {
+    background: #fff;
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    margin: 16px 0;
+    line-height: 1.5;
 }
-.section-label {
-    font-weight: bold;
-    margin: 20px 0 8px;
-    font-size: 1.1em;
-}
+.hidden { display: none; }
 </style>
 </head>
 
@@ -107,7 +100,7 @@ button#exportHistory { background: #d32f2f; }
 <p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
 
-<div class="pupil-bar hidden-print">
+<div class="pupil-bar">
     <select id="pupilSelect"></select>
     <button onclick="addPupil()">Add Pupil</button>
     <button onclick="deletePupil()">Delete</button>
@@ -115,8 +108,8 @@ button#exportHistory { background: #d32f2f; }
 
 <p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
 
-<div class="section-label hidden-print">Lesson Duration (hours)</div>
-<input class="hidden-print" type="number" step="0.25" id="lessonHours" min="0" value="2">
+<div class="section-label">Lesson Duration (hours)</div>
+<input type="number" step="0.25" id="lessonHours" min="0" value="2">
 
 <div class="section-label">Lesson Goal</div>
 <textarea id="goal"></textarea>
@@ -139,238 +132,76 @@ button#exportHistory { background: #d32f2f; }
 <div class="section-label">Additional Comments</div>
 <textarea id="comments"></textarea>
 
-<div class="hidden-print">
-    <button id="generatePdf">Generate PDF</button>
-    <button id="emailPdf">Generate & Email Reflective Log</button>
-    <button id="exportHistory">Export Full Pupil Progress</button>
+<!-- New prominent button for mobile-friendly perfect PDF -->
+<button id="bestPdfPhone">Best PDF on Phone – Looks Like Screen!</button>
+
+<div id="phoneInstructions" class="instructions hidden">
+    <h3>Quick steps to get perfect PDF (looks exactly like this page)</h3>
+    <p><strong>iPhone (Safari):</strong></p>
+    <ol>
+        <li>Scroll to top of page</li>
+        <li>Tap <strong>Share</strong> icon (square ↑)</li>
+        <li>Scroll & tap <strong>Print</strong></li>
+        <li>Pinch out on preview to see full page</li>
+        <li>Tap <strong>Share</strong> icon again → <strong>Save to Files</strong> or <strong>Mail</strong></li>
+    </ol>
+
+    <p><strong>Android (Chrome):</strong></p>
+    <ol>
+        <li>Tap three dots ⋮ (top right)</li>
+        <li>Tap <strong>Share</strong> → <strong>Print</strong></li>
+        <li>Choose <strong>Save as PDF</strong></li>
+        <li>Tap PDF icon or Save button</li>
+        <li>Choose folder → Save</li>
+    </ol>
+
+    <p>→ Then open email app and attach the saved PDF.</p>
+    <p><em>This gives the sharpest, most accurate result on phone.</em></p>
+    <button onclick="document.getElementById('phoneInstructions').classList.add('hidden')">Close instructions</button>
+</div>
+
+<!-- Optional: keep old buttons if you want -->
+<div style="margin-top: 30px;">
+    <button id="generatePdf">Old: Generate PDF (may look flatter)</button>
+    <button id="emailPdf">Old: Generate & Email (may look flatter)</button>
+    <button id="exportHistory">Export Full Progress</button>
 </div>
 
 </div>
 
 <script>
+// Your existing script logic here (pupils, loadDropdown, addPupil, etc.) ...
+// I'll include only the new parts + minimal skeleton
+
 document.getElementById("date").innerText = 
     new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
-let pupils = JSON.parse(localStorage.getItem("adiPupilsV3")) || {};
-let currentPupil = null;
+// ... (keep your pupils, save, loadDropdown, addPupil, deletePupil, updateDisplay, createScale, saveLessonData functions)
 
-function save() { 
-    localStorage.setItem("adiPupilsV3", JSON.stringify(pupils)); 
-}
-
-function loadDropdown() {
-    let select = document.getElementById("pupilSelect");
-    select.innerHTML = "";
-    let names = Object.keys(pupils);
-
-    if (names.length === 0) {
-        currentPupil = null;
-        document.getElementById("totalHours").innerText = "0";
-        return;
-    }
-
-    names.forEach(name => {
-        let opt = document.createElement("option");
-        opt.value = name;
-        opt.text = name;
-        select.appendChild(opt);
-    });
-
-    if (!currentPupil || !pupils[currentPupil]) currentPupil = names[0];
-    select.value = currentPupil;
-    updateDisplay();
-}
-
-function addPupil() {
-    let name = prompt("Enter pupil name:");
-    if (!name) return;
-    name = name.trim();
-    if (!pupils[name]) pupils[name] = { hours: 0, lessons: [] };
-    currentPupil = name;
-    save();
-    loadDropdown();
-}
-
-function deletePupil() {
-    if (!currentPupil) return;
-    if (confirm("Delete " + currentPupil + "?")) {
-        delete pupils[currentPupil];
-        save();
-        currentPupil = null;
-        loadDropdown();
-    }
-}
-
-document.getElementById("pupilSelect").addEventListener("change", function() {
-    currentPupil = this.value;
-    updateDisplay();
-});
-
-function updateDisplay() {
-    if (!currentPupil) return;
-    document.getElementById("totalHours").innerText = pupils[currentPupil].hours;
-}
-
-function createScale(id) {
-    for (let i = 1; i <= 10; i++) {
-        let div = document.createElement("div");
-        div.innerText = i;
-        div.onclick = function() {
-            [...this.parentElement.children].forEach(c => c.classList.remove("selected"));
-            this.classList.add("selected");
-            this.parentElement.setAttribute("data-value", i);
-        };
-        document.getElementById(id).appendChild(div);
-    }
-}
 createScale("scale1");
 createScale("scale2");
 
-function saveLessonData() {
-    let hours = parseFloat(document.getElementById("lessonHours").value) || 0;
-    if (hours <= 0) return;
-    let lesson = { date: document.getElementById("date").innerText, hours };
-    pupils[currentPupil].hours += hours;
-    pupils[currentPupil].lessons.push(lesson);
-    save();
-    updateDisplay();
+// New button handler – show instructions
+document.getElementById("bestPdfPhone").onclick = function() {
+    document.getElementById("phoneInstructions").classList.remove("hidden");
+    window.scrollTo(0, 0); // help user see top of page
+};
+
+// Optional: attempt to trigger print dialog (works partially on some mobile browsers)
+function tryOpenPrint() {
+    if (window.matchMedia('print').matches) return; // already printing
+    window.print(); // may open print dialog on some devices
 }
 
-async function generateLessonPDF(shouldEmail = false) {
-    if (!currentPupil) {
-        alert("Select a pupil first.");
-        return;
-    }
-    saveLessonData();
+// You can call tryOpenPrint() from the button if you want to experiment:
+// document.getElementById("bestPdfPhone").onclick = function() {
+//     document.getElementById("phoneInstructions").classList.remove("hidden");
+//     tryOpenPrint();
+// };
 
-    let buttons = document.querySelectorAll(".hidden-print");
-    buttons.forEach(b => b.style.display = "none");
+// Keep your old generateLessonPDF / exportHistoryPDF if desired ...
+// (or remove them to simplify the page)
 
-    // Force scroll to top before capture
-    window.scrollTo(0, 0);
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-
-    // Replace textareas with styled divs (better line-break rendering)
-    let textareas = document.querySelectorAll('#formArea textarea');
-    let replacements = [];
-    textareas.forEach(ta => {
-        let div = document.createElement('div');
-        div.className = 'reflection-div';
-        div.textContent = ta.value;
-        ta.parentNode.insertBefore(div, ta);
-        ta.style.display = 'none';
-        replacements.push({ ta, div });
-    });
-
-    // Give layout time to settle
-    await new Promise(r => setTimeout(r, 400));
-
-    try {
-        let canvas = await html2canvas(document.getElementById("formArea"), {
-            scale: 2.8,               // higher = sharper, but bigger file
-            useCORS: true,
-            allowTaint: true,
-            logging: false,
-            windowWidth: document.documentElement.scrollWidth,
-            windowHeight: document.documentElement.scrollHeight,
-            x: 0,
-            y: 0,
-            scrollX: 0,
-            scrollY: 0,
-            backgroundColor: '#f4f4f4'
-        });
-
-        // Restore original textareas
-        replacements.forEach(({ ta, div }) => {
-            ta.style.display = '';
-            div.remove();
-        });
-
-        const { jsPDF } = window.jspdf;
-        let pdf = new jsPDF("p", "mm", "a4");
-
-        let pageWidth = pdf.internal.pageSize.getWidth();
-        let pageHeight = pdf.internal.pageSize.getHeight();
-
-        let imgWidth = pageWidth;
-        let imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        let heightLeft = canvas.height;
-        let positionY = 0;
-
-        // Add first page
-        pdf.addImage(canvas, 'PNG', 0, positionY, imgWidth, imgHeight);
-        heightLeft -= pageHeight * (canvas.width / imgWidth);
-
-        // Add extra pages if content overflows
-        while (heightLeft > 0) {
-            pdf.addPage();
-            positionY = heightLeft - canvas.height;
-            pdf.addImage(canvas, 'PNG', 0, positionY, imgWidth, imgHeight);
-            heightLeft -= pageHeight * (canvas.width / imgWidth);
-        }
-
-        let today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-        let filename = `Reflective_Log_${currentPupil.replace(/\s+/g, '_')}_${today.replace(/ /g, '_')}.pdf`;
-
-        if (shouldEmail) {
-            let subject = `Reflective Log – ${currentPupil} – ${today}`;
-            let body = `Dear recipient,\n\nAttached is the reflective log for ${currentPupil} dated ${today}.\n\nBest regards,\nAlex Heirani`;
-
-            let pdfBlob = pdf.output('blob');
-            let pdfUrl = URL.createObjectURL(pdfBlob);
-
-            let mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-            window.location.href = mailto;
-
-            // Also download a copy
-            let a = document.createElement('a');
-            a.href = pdfUrl;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
-            setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000);
-        } else {
-            pdf.save(filename);
-        }
-    } catch (err) {
-        console.error("PDF generation error:", err);
-        alert("Failed to generate PDF.\nTry shortening text or testing on desktop Chrome.");
-    }
-
-    buttons.forEach(b => b.style.display = "block");
-}
-
-// Wire up buttons
-document.getElementById("generatePdf").onclick = () => generateLessonPDF(false);
-document.getElementById("emailPdf").onclick    = () => generateLessonPDF(true);
-
-function exportHistoryPDF() {
-    if (!currentPupil) {
-        alert("Select a pupil first.");
-        return;
-    }
-    const { jsPDF } = window.jspdf;
-    let pdf = new jsPDF();
-    let y = 20;
-    pdf.text("Full Progress - " + currentPupil, 15, 10);
-
-    pupils[currentPupil].lessons.forEach((l, i) => {
-        pdf.text(`Lesson ${i+1} - ${l.date} - ${l.hours} hrs`, 15, y);
-        y += 10;
-        if (y > 270) {
-            pdf.addPage();
-            y = 20;
-        }
-    });
-    pdf.save("Progress_" + currentPupil + ".pdf");
-}
-
-// Initial load
 loadDropdown();
 </script>
 
