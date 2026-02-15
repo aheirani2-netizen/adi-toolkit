@@ -29,7 +29,6 @@ input, textarea, select {
 textarea { 
     min-height: 100px; 
     resize: vertical; 
-    background: white;
 }
 
 button {
@@ -42,11 +41,6 @@ button {
     font-weight: bold; 
     cursor: pointer; 
     color: white;
-}
-
-button#bestPdfPhone { 
-    background: linear-gradient(#ff6b6b, #ee5253); 
-    font-size: 18px; 
 }
 
 .scale-bar { display: flex; margin-bottom: 20px; gap: 4px; }
@@ -78,15 +72,6 @@ button#bestPdfPhone {
     text-align: center; 
 }
 
-.instructions {
-    background: white; 
-    padding: 16px; 
-    border-radius: 10px; 
-    border: 1px solid #ddd;
-    margin: 16px 0; 
-    line-height: 1.5;
-}
-
 .section-label {
     margin-top: 16px;
     margin-bottom: 4px;
@@ -97,7 +82,7 @@ button#bestPdfPhone {
     margin-bottom: 10px;
 }
 
-/* PRINT FIXES */
+/* PRINT FIX */
 @media print {
 
   body {
@@ -106,11 +91,7 @@ button#bestPdfPhone {
     line-height: 1.4 !important;
   }
 
-  button,
-  #bestPdfPhone,
-  footer {
-    display: none !important;
-  }
+  button { display: none !important; }
 
   .print-section {
     page-break-inside: avoid;
@@ -118,22 +99,12 @@ button#bestPdfPhone {
   }
 
   .section-label {
-    margin-top: 10px !important;
-    margin-bottom: 2px !important;
     page-break-after: avoid !important;
+    margin-top: 10px !important;
   }
 
-  textarea, 
-  input[type="text"], 
-  input[type="number"] {
-
-    background: #ffffff !important;
-    border: 1px solid #999 !important;
-    border-radius: 6px !important;
-    padding: 6px !important;
-    margin: 4px 0 8px 0 !important;
+  textarea, input[type="number"] {
     min-height: 60px !important;
-
     page-break-inside: auto !important;
     break-inside: auto !important;
   }
@@ -182,9 +153,7 @@ button#bestPdfPhone {
 </div>
 
 <div class="print-section">
-    <div class="section-label">
-        What didn’t go well? / What could you do differently?
-    </div>
+    <div class="section-label">What didn’t go well? / What could you do differently?</div>
     <textarea id="improve"></textarea>
 </div>
 
@@ -193,12 +162,24 @@ button#bestPdfPhone {
     <textarea id="achieved"></textarea>
 </div>
 
+<!-- BOTTOM SECTION YOU MENTIONED -->
+
+<div class="print-section">
+    <div class="section-label">Final Self Rating (1–10)</div>
+    <div class="scale-bar" id="scale2"></div>
+</div>
+
+<div class="print-section">
+    <div class="section-label">Additional Comments</div>
+    <textarea id="additional"></textarea>
+</div>
+
 </div>
 
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
-// Rating scale
+// Create rating scales
 function createScale(containerId) {
     const container = document.getElementById(containerId);
     for (let i = 1; i <= 10; i++) {
@@ -211,7 +192,9 @@ function createScale(containerId) {
         container.appendChild(div);
     }
 }
+
 createScale("scale1");
+createScale("scale2");
 
 // Pupil storage
 let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
