@@ -166,9 +166,25 @@ saveLessonData();
 let buttons=document.querySelectorAll(".hidden-print");
 buttons.forEach(b=>b.style.display="none");
 
-const { jsPDF } = window.jspdf;
+// Replace textareas with pre elements to preserve newlines
+let textareas = document.querySelectorAll('#formArea textarea');
+let replacements = [];
+textareas.forEach(ta => {
+  let pre = document.createElement('pre');
+  pre.style.cssText = ta.style.cssText + '; white-space: pre-wrap; word-wrap: break-word; min-height:80px; border:1px solid #ccc; padding:10px; border-radius:8px; background:white; font-family: Arial; font-size:16px;';
+  pre.textContent = ta.value;
+  ta.parentNode.insertBefore(pre, ta);
+  ta.style.display = 'none';
+  replacements.push({ta, pre});
+});
+
 let canvas = await html2canvas(document.getElementById("formArea"),{scale:2});
-let pdf = new jsPDF("p","mm","a4");
+
+// Restore textareas
+replacements.forEach(({ta, pre}) => {
+  ta.style.display = '';
+  pre.remove();
+});
 
 let pageWidth = pdf.internal.pageSize.getWidth();
 let pageHeight = pdf.internal.pageSize.getHeight();
