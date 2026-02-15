@@ -71,8 +71,8 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;fon
 <textarea id="comments"></textarea>
 
 <div class="hidden-print">
-<button onclick="generatePDF()">Generate PDF</button>
-<button onclick="sendEmail()">Send Email Summary</button>
+<button onclick="generateLessonPDF()">Generate Lesson PDF</button>
+<button onclick="exportHistoryPDF()">Export Full Pupil Progress</button>
 </div>
 
 </div>
@@ -81,11 +81,11 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;fon
 document.getElementById("date").innerText =
 new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 
-let pupils = JSON.parse(localStorage.getItem("adiPupils")) || {};
+let pupils = JSON.parse(localStorage.getItem("adiPupilsV2")) || {};
 let currentPupil = null;
 
 function save(){
-localStorage.setItem("adiPupils", JSON.stringify(pupils));
+localStorage.setItem("adiPupilsV2", JSON.stringify(pupils));
 }
 
 function loadDropdown(){
@@ -119,7 +119,7 @@ let name=prompt("Enter pupil name:");
 if(!name) return;
 
 if(!pupils[name]){
-pupils[name]={hours:0};
+pupils[name]={hours:0,lessons:[]};
 save();
 }
 
@@ -147,16 +147,6 @@ if(!currentPupil) return;
 document.getElementById("totalHours").innerText=pupils[currentPupil].hours;
 }
 
-function addHours(){
-if(!currentPupil) return;
-let hours=parseFloat(document.getElementById("lessonHours").value)||0;
-if(hours>0){
-pupils[currentPupil].hours+=hours;
-save();
-updateDisplay();
-}
-}
-
 function createScale(id){
 for(let i=1;i<=10;i++){
 let div=document.createElement("div");
@@ -176,13 +166,32 @@ function getScale(id){
 return document.getElementById(id).getAttribute("data-value")||"";
 }
 
-async function generatePDF(){
-if(!currentPupil){
-alert("Select a pupil first.");
-return;
+function saveLessonData(){
+let hours=parseFloat(document.getElementById("lessonHours").value)||0;
+
+let lesson={
+date:document.getElementById("date").innerText,
+goal:goal.value,
+initial:getScale("scale1"),
+improve:improve.value,
+different:different.value,
+well:well.value,
+achieved:achieved.value,
+final:getScale("scale2"),
+comments:comments.value,
+hours:hours
+};
+
+pupils[currentPupil].hours+=hours;
+pupils[currentPupil].lessons.push(lesson);
+save();
+updateDisplay();
 }
 
-addHours();
+async function generateLessonPDF(){
+if(!currentPupil){alert("Select a pupil first.");return;}
+
+saveLessonData();
 
 let buttons=document.querySelectorAll(".hidden-print");
 buttons.forEach(b=>b.style.display="none");
@@ -191,72 +200,67 @@ const { jsPDF } = window.jspdf;
 
 html2canvas(document.getElementById("formArea"),{scale:2}).then(canvas=>{
 
-let imgData = canvas.toDataURL("image/png");
-let pdf = new jsPDF("p","mm","a4");
+let pdf=new jsPDF("p","mm","a4");
+let pageWidth=pdf.internal.pageSize.getWidth();
+let pageHeight=pdf.internal.pageSize.getHeight();
 
-let pageWidth = pdf.internal.pageSize.getWidth();
-let pageHeight = pdf.internal.pageSize.getHeight();
+let imgWidth=pageWidth;
+let imgHeight=canvas.height*imgWidth/canvas.width;
 
-let imgWidth = pageWidth;
-let imgHeight = canvas.height * imgWidth / canvas.width;
+let heightLeft=imgHeight;
+let position=0;
 
-let heightLeft = imgHeight;
-let position = 0;
+pdf.addImage(canvas,"PNG",0,position,imgWidth,imgHeight);
+heightLeft-=pageHeight;
 
-pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-heightLeft -= pageHeight;
-
-while (heightLeft > 0) {
-position = heightLeft - imgHeight;
+while(heightLeft>0){
+position=heightLeft-imgHeight;
 pdf.addPage();
-pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-heightLeft -= pageHeight;
+pdf.addImage(canvas,"PNG",0,position,imgWidth,imgHeight);
+heightLeft-=pageHeight;
 }
 
-pdf.save("Lesson_" + currentPupil + ".pdf");
+pdf.save("Lesson_"+currentPupil+".pdf");
 
 buttons.forEach(b=>b.style.display="block");
 });
 }
 
-function buildReport(){
-addHours();
-return `
-Instructor: Alex Heirani
-Date: ${date.innerText}
-Pupil: ${currentPupil}
-Lesson Duration: ${lessonHours.value}
-Total Hours: ${pupils[currentPupil].hours}
+function exportHistoryPDF(){
+if(!currentPupil){alert("Select a pupil first.");return;}
 
-Lesson Goal:
-${goal.value}
+const { jsPDF } = window.jspdf;
+let pdf=new jsPDF();
+let y=20;
 
-Initial Rating: ${getScale("scale1")}/10
+pdf.text("Full Progress Report - "+currentPupil,15,10);
 
-What didn’t go well:
-${improve.value}
-
-What to do differently:
-${different.value}
+pupils[currentPupil].lessons.forEach((l,i)=>{
+let text=`Lesson ${i+1} - ${l.date}
+Hours: ${l.hours}
+Goal: ${l.goal}
+Initial Rating: ${l.initial}
+Final Rating: ${l.final}
 
 What went well:
-${well.value}
+${l.well}
 
-Goal Achieved:
-${achieved.value}
+Needs improvement:
+${l.improve}
 
-Final Rating: ${getScale("scale2")}/10
+--------------------------`;
 
-Additional Comments:
-${comments.value}
-`;
+let split=pdf.splitTextToSize(text,180);
+pdf.text(split,15,y);
+y+=split.length*6;
+
+if(y>270){
+pdf.addPage();
+y=20;
 }
+});
 
-function sendEmail(){
-if(!currentPupil){alert("Select a pupil first.");return;}
-let subject=`Lesson Reflection – ${currentPupil}`;
-let body=buildReport();
-window.location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+pdf.save("Full_Progress_"+currentPupil+".pdf");
 }
 
 loadDropdown();
