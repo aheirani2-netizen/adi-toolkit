@@ -6,22 +6,48 @@
 <title>ADI Reflective Log</title>
 
 <style>
-body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; background: #f4f4f4; }
+body { 
+    font-family: Arial, sans-serif; 
+    padding: 20px; 
+    max-width: 900px; 
+    margin: auto; 
+    background: #f4f4f4; 
+}
 h1 { text-align: center; margin-bottom: 20px; }
 input, textarea, select {
-    width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px;
-    border: 1px solid #ccc; font-size: 16px; box-sizing: border-box;
+    width: 100%; 
+    padding: 10px; 
+    margin-bottom: 15px; 
+    border-radius: 8px;
+    border: 1px solid #ccc; 
+    font-size: 16px; 
+    box-sizing: border-box;
 }
 textarea { min-height: 100px; resize: vertical; }
 button {
-    width: 100%; padding: 14px; margin: 12px 0; border: none; border-radius: 10px;
-    font-size: 17px; font-weight: bold; cursor: pointer; color: white;
+    width: 100%; 
+    padding: 14px; 
+    margin: 12px 0; 
+    border: none; 
+    border-radius: 10px;
+    font-size: 17px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    color: white;
 }
-button#bestPdfPhone { background: linear-gradient(#ff6b6b, #ee5253); font-size: 18px; }
+button#bestPdfPhone { 
+    background: linear-gradient(#ff6b6b, #ee5253); 
+    font-size: 18px; 
+}
 .scale-bar { display: flex; margin-bottom: 20px; gap: 4px; }
 .scale-bar div {
-    flex: 1; padding: 10px; text-align: center; color: white; font-weight: bold;
-    cursor: pointer; border-radius: 6px;
+    flex: 1; 
+    padding: 10px; 
+    text-align: center; 
+    color: white; 
+    font-weight: bold;
+    cursor: pointer; 
+    border-radius: 6px;
 }
 .scale-bar div:nth-child(-n+3) { background: #d32f2f; }
 .scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color: black; }
@@ -30,17 +56,27 @@ button#bestPdfPhone { background: linear-gradient(#ff6b6b, #ee5253); font-size: 
 .pupil-bar { display: flex; gap: 10px; margin-bottom: 20px; }
 .pupil-bar select { flex: 3; }
 .pupil-bar button { flex: 1; }
-.total-hours { font-weight: bold; font-size: 1.2em; margin: 15px 0; text-align: center; }
-.instructions {
-    background: white; padding: 16px; border-radius: 10px; border: 1px solid #ddd;
-    margin: 16px 0; line-height: 1.5;
+.total-hours { 
+    font-weight: bold; 
+    font-size: 1.2em; 
+    margin: 15px 0; 
+    text-align: center; 
 }
-.hidden { display: none; }
+.instructions {
+    background: white; 
+    padding: 16px; 
+    border-radius: 10px; 
+    border: 1px solid #ddd;
+    margin: 16px 0; 
+    line-height: 1.5;
+}
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
 
 <div id="formArea">
+
 <h1>LEARNER REFLECTIVE LOG</h1>
 <p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
@@ -77,40 +113,48 @@ button#bestPdfPhone { background: linear-gradient(#ff6b6b, #ee5253); font-size: 
 <div class="section-label">Additional Comments</div>
 <textarea id="comments"></textarea>
 
-<button id="bestPdfPhone">Best PDF on Phone – Looks Like Screen!</button>
+<!-- This button opens instructions – it will NOT appear in the PDF unless clicked -->
+<button id="bestPdfPhone">How to save perfect PDF on phone</button>
 
+<!-- Instructions are hidden by default and only appear when button is tapped -->
 <div id="phoneInstructions" class="instructions hidden">
-    <h3>How to get perfect PDF (matches what you see)</h3>
+    <h3>How to save PDF that looks exactly like this page</h3>
+    
     <p><strong>iPhone (Safari):</strong></p>
     <ol>
-        <li>Scroll to top</li>
-        <li>Tap Share icon (square with ↑)</li>
-        <li>Scroll down → tap Print</li>
-        <li>Pinch outwards on preview to see full pages</li>
-        <li>Tap Share icon again → Save to Files or Mail</li>
+        <li>Scroll to top of the page</li>
+        <li>Tap the Share icon (square with arrow pointing up)</li>
+        <li>Scroll down and tap <strong>Print</strong></li>
+        <li>Pinch outwards with two fingers on the preview to see all pages</li>
+        <li>Tap the Share icon again in the top-right → choose <strong>Save to Files</strong> or <strong>Mail</strong></li>
     </ol>
+
     <p><strong>Android (Chrome):</strong></p>
     <ol>
-        <li>Tap three dots ⋮ (top right)</li>
-        <li>Tap Share → Print</li>
-        <li>Select Save as PDF</li>
-        <li>Tap the PDF/save icon</li>
-        <li>Choose folder and save</li>
+        <li>Tap the three dots ⋮ in the top-right corner</li>
+        <li>Tap <strong>Share</strong> → <strong>Print</strong></li>
+        <li>Select <strong>Save as PDF</strong></li>
+        <li>Tap the PDF icon or <strong>Save</strong> button</li>
+        <li>Choose a folder and save the file</li>
     </ol>
-    <p>Then attach the PDF to email from Files/Downloads.</p>
-    <button onclick="document.getElementById('phoneInstructions').classList.add('hidden')">Close</button>
+
+    <p>After saving, you can attach the PDF to an email from your Files/Downloads folder.</p>
+
+    <button onclick="document.getElementById('phoneInstructions').classList.add('hidden')">Close instructions</button>
 </div>
+
 </div>
 
 <script>
+// ────────────────────────────────────────────────
 document.getElementById("date").innerText = 
     new Date().toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
 
 let pupils = JSON.parse(localStorage.getItem("adiPupilsV3")) || {};
 let currentPupil = null;
 
-function save() {
-    localStorage.setItem("adiPupilsV3", JSON.stringify(pupils));
+function save() { 
+    localStorage.setItem("adiPupilsV3", JSON.stringify(pupils)); 
 }
 
 function loadDropdown() {
@@ -146,7 +190,7 @@ function addPupil() {
         save();
         loadDropdown();
     } else {
-        alert("Pupil already exists!");
+        alert("That pupil already exists!");
     }
 }
 
@@ -166,7 +210,8 @@ document.getElementById("pupilSelect").addEventListener("change", function() {
 });
 
 function updateDisplay() {
-    document.getElementById("totalHours").innerText = currentPupil ? (pupils[currentPupil]?.hours || 0) : 0;
+    document.getElementById("totalHours").innerText = 
+        currentPupil ? (pupils[currentPupil]?.hours || 0) : 0;
 }
 
 function createScale(id) {
@@ -185,9 +230,9 @@ function createScale(id) {
 createScale("scale1");
 createScale("scale2");
 
-// Show instructions when button is clicked
+// Show / hide instructions
 document.getElementById("bestPdfPhone").onclick = function() {
-    document.getElementById("phoneInstructions").classList.remove("hidden");
+    document.getElementById("phoneInstructions").classList.toggle("hidden");
     window.scrollTo({top: 0, behavior: 'smooth'});
 };
 
