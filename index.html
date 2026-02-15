@@ -3,156 +3,150 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ADI Reflective Log</title>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    max-width: 900px;
-    margin: auto;
-    background: #f4f4f4;
-    transition: 0.3s;
-}
-
-h1 {
-    text-align: center;
-    letter-spacing: 1px;
-}
-
-input, textarea, select {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-}
-
-textarea { min-height: 80px; }
-
-.scale-bar {
-    display: flex;
-    margin-bottom: 15px;
-}
-
-.scale-bar div {
-    flex: 1;
-    padding: 8px;
-    text-align: center;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.scale-bar div:nth-child(-n+3) { background: #d32f2f; }
-.scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color:black; }
-.scale-bar div:nth-child(n+7) { background: #2e7d32; }
-
-.selected { outline: 3px solid black; }
-
-button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border-radius: 8px;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.dark {
-    background: #1c1c1e;
-    color: white;
-}
-
-.dark input, .dark textarea, .dark select {
-    background: #2c2c2e;
-    color: white;
-    border: 1px solid #444;
-}
-
-.about-box {
-    background: #e0e0e0;
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 20px;
-    font-size: 14px;
-}
-
-.dark .about-box {
-    background: #2c2c2e;
-}
+body { font-family: Arial; padding:20px; max-width:900px; margin:auto; background:#f4f4f4; transition:0.3s;}
+h1{text-align:center;}
+input,textarea,select{width:100%;padding:10px;margin-bottom:15px;border-radius:8px;border:1px solid #ccc;font-size:16px;}
+textarea{min-height:80px;}
+button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;font-size:16px;cursor:pointer;}
+.scale-bar{display:flex;margin-bottom:15px;}
+.scale-bar div{flex:1;padding:8px;text-align:center;color:white;font-weight:bold;cursor:pointer;}
+.scale-bar div:nth-child(-n+3){background:#d32f2f;}
+.scale-bar div:nth-child(n+4):nth-child(-n+6){background:#fbc02d;color:black;}
+.scale-bar div:nth-child(n+7){background:#2e7d32;}
+.selected{outline:3px solid black;}
+.dark{background:#1c1c1e;color:white;}
+.dark input,.dark textarea,.dark select{background:#2c2c2e;color:white;border:1px solid #444;}
+.total-hours{font-weight:bold;margin-bottom:15px;}
+.pupil-bar{display:flex;gap:8px;margin-bottom:15px;}
+.pupil-bar select{flex:2;}
+.pupil-bar button{flex:1;}
 </style>
 </head>
 
 <body>
 
 <h1>LEARNER REFLECTIVE LOG</h1>
-
 <p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
 
-<label>Learner Name:</label>
-<input type="text" id="name">
+<div class="pupil-bar">
+<select id="pupilSelect"></select>
+<button onclick="addPupil()">Add</button>
+<button onclick="deletePupil()">Delete</button>
+<button onclick="exportPupil()">Export</button>
+</div>
 
-<label>Lesson goal agreed with learner:</label>
+<p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
+
+<label>Lesson Duration (hours):</label>
+<input type="number" step="0.5" id="lessonHours">
+
+<label>Lesson Goal:</label>
 <textarea id="goal"></textarea>
 
-<label>Initial self-rating (1–10):</label>
+<label>Initial Rating:</label>
 <div class="scale-bar" id="scale1"></div>
 
-<label>What didn’t go well? How can you improve?</label>
+<label>What didn’t go well?</label>
 <textarea id="improve"></textarea>
 
-<label>What could you do differently next time?</label>
+<label>What to do differently?</label>
 <textarea id="different"></textarea>
 
-<label>What did you do well?</label>
+<label>What went well?</label>
 <textarea id="well"></textarea>
 
-<label>Did you achieve the lesson goal today?</label>
+<label>Goal achieved?</label>
 <textarea id="achieved"></textarea>
 
-<label>Final self-rating (1–10):</label>
+<label>Final Rating:</label>
 <div class="scale-bar" id="scale2"></div>
 
 <label>Additional Comments:</label>
 <textarea id="comments"></textarea>
 
-<label>Any safety critical incidents?</label>
-<select id="safety">
-<option>No</option>
-<option>Yes</option>
-</select>
-
-<label>If yes – what happened?</label>
-<textarea id="incident"></textarea>
-
-<label>Instructor view – was the goal achieved?</label>
-<textarea id="goalAchieved"></textarea>
-
-<label>Instructor Notes:</label>
-<textarea id="notes"></textarea>
-
-<button onclick="generatePDF()">Generate Professional PDF</button>
-<button onclick="sendEmail()">Send Email (Summary)</button>
-<button onclick="emailWithPDF()">Email with PDF Attached</button>
-<button onclick="toggleDark()">Toggle Dark Mode</button>
-
-<div class="about-box">
-<strong>About This Tool</strong><br><br>
-This reflective log tool is designed for ADI lesson structure and Part 3 standards check preparation.
-It supports client-centred learning, structured reflection, and professional documentation.
-<br><br>
-Instructor: Alex Heirani
-</div>
+<button onclick="generatePDF()">Generate PDF</button>
+<button onclick="sendEmail()">Send Email</button>
+<button onclick="sharePDF()">Share PDF</button>
+<button onclick="toggleDark()">Dark Mode</button>
 
 <script>
 document.getElementById("date").innerText =
 new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+let pupils = JSON.parse(localStorage.getItem("pupils")) || {};
+let currentPupil = null;
+
+function savePupils(){
+localStorage.setItem("pupils", JSON.stringify(pupils));
+}
+
+function refreshDropdown(){
+let select=document.getElementById("pupilSelect");
+select.innerHTML="";
+for(let name in pupils){
+let option=document.createElement("option");
+option.value=name;
+option.text=name;
+select.appendChild(option);
+}
+if(currentPupil) select.value=currentPupil;
+}
+
+function addPupil(){
+let name=prompt("Enter pupil name:");
+if(!name) return;
+if(!pupils[name]){
+pupils[name]={hours:0};
+savePupils();
+}
+currentPupil=name;
+refreshDropdown();
+updateDisplay();
+}
+
+function deletePupil(){
+if(!currentPupil) return;
+if(confirm("Delete "+currentPupil+"?")){
+delete pupils[currentPupil];
+savePupils();
+currentPupil=null;
+refreshDropdown();
+document.getElementById("totalHours").innerText="0";
+}
+}
+
+function exportPupil(){
+if(!currentPupil) return alert("Select a pupil first.");
+let data = JSON.stringify(pupils[currentPupil], null, 2);
+let blob = new Blob([data], {type:"application/json"});
+let url = URL.createObjectURL(blob);
+let a = document.createElement("a");
+a.href = url;
+a.download = currentPupil+"_data.json";
+a.click();
+}
+
+document.getElementById("pupilSelect").addEventListener("change",function(){
+currentPupil=this.value;
+updateDisplay();
+});
+
+function updateDisplay(){
+if(!currentPupil) return;
+document.getElementById("totalHours").innerText=pupils[currentPupil].hours || 0;
+}
+
+function updateHours(){
+if(!currentPupil) return;
+let hours=parseFloat(document.getElementById("lessonHours").value)||0;
+pupils[currentPupil].hours+=hours;
+savePupils();
+updateDisplay();
+}
 
 function createScale(id){
 for(let i=1;i<=10;i++){
@@ -174,12 +168,15 @@ return document.getElementById(id).getAttribute("data-value")||"";
 }
 
 function buildReport(){
+updateHours();
 return `
 LEARNER REFLECTIVE LOG
 
 Instructor: Alex Heirani
-Date: ${document.getElementById("date").innerText}
-Learner: ${name.value}
+Date: ${date.innerText}
+Pupil: ${currentPupil}
+Lesson Duration: ${lessonHours.value} hours
+Total Hours: ${pupils[currentPupil].hours}
 
 Lesson Goal:
 ${goal.value}
@@ -202,45 +199,34 @@ Final Rating: ${getScale("scale2")}/10
 
 Additional Comments:
 ${comments.value}
-
-Safety Incident: ${safety.value}
-Details:
-${incident.value}
-
-Instructor View:
-${goalAchieved.value}
-
-Notes:
-${notes.value}
 `;
 }
 
 function generatePDF(){
 const { jsPDF } = window.jspdf;
 const doc = new jsPDF();
-doc.setFontSize(12);
 doc.text(doc.splitTextToSize(buildReport(),180),15,20);
-doc.save("Learner_Reflective_Log.pdf");
+doc.save("Lesson_Log_"+currentPupil+".pdf");
 }
 
 function sendEmail(){
-let subject = `Lesson Reflection – ${name.value}`;
-let body = buildReport();
-window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+let subject=`Lesson Reflection – ${currentPupil}`;
+let body=buildReport();
+window.location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-function emailWithPDF(){
-generatePDF();
-setTimeout(function(){
-let subject = `Lesson Reflection – ${name.value}`;
-let body = "Please find attached your lesson reflection PDF.\n\nInstructor: Alex Heirani";
-window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-},800);
+function sharePDF(){
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+doc.text(doc.splitTextToSize(buildReport(),180),15,20);
+doc.output('dataurlnewwindow');
 }
 
 function toggleDark(){
 document.body.classList.toggle("dark");
 }
+
+refreshDropdown();
 </script>
 
 </body>
