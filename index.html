@@ -83,13 +83,13 @@ button {
     margin-bottom: 10px;
 }
 
-/* ===== PRINT FIX — SAFARI SAFE ===== */
+/* ===== PRINT SAFE FINAL VERSION ===== */
 @media print {
 
   body {
     background: white !important;
     font-size: 13px !important;
-    line-height: 1.6 !important; /* slightly taller to prevent rounding clip */
+    line-height: 1.6 !important;
   }
 
   button { display: none !important; }
@@ -108,14 +108,14 @@ button {
   textarea {
 
     font-size: 13px !important;
-    line-height: 1.6 !important;
+    line-height: 1.65 !important;   /* FINAL micro-adjust */
 
-    height: auto !important;          /* remove internal control height */
+    height: auto !important;
     min-height: 0 !important;
 
-    overflow: hidden !important;      /* remove scroll layer */
-    
-    padding: 10px 10px 14px 10px !important; /* extra bottom buffer */
+    overflow: hidden !important;
+
+    padding: 10px 10px 16px 10px !important; /* 16px bottom padding */
 
     border: 1px solid #999 !important;
     border-radius: 6px !important;
@@ -124,10 +124,8 @@ button {
 
     page-break-inside: auto !important;
     break-inside: auto !important;
-  }
 
-  input[type="number"] {
-    padding-bottom: 10px !important;
+    margin-bottom: 12px !important;
   }
 
   @page {
@@ -198,6 +196,7 @@ button {
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
+/* ---------- SCALE CREATION ---------- */
 function createScale(containerId) {
     const container = document.getElementById(containerId);
     for (let i = 1; i <= 10; i++) {
@@ -206,14 +205,15 @@ function createScale(containerId) {
         div.onclick = () => {
             [...container.children].forEach(c => c.classList.remove("selected"));
             div.classList.add("selected");
+            saveCurrentPupilData();
         };
         container.appendChild(div);
     }
 }
-
 createScale("scale1");
 createScale("scale2");
 
+/* ---------- PUPIL STORAGE ---------- */
 let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
 const pupilSelect = document.getElementById("pupilSelect");
 
@@ -222,16 +222,77 @@ function refreshPupils() {
     pupils.forEach((p, i) => {
         const option = document.createElement("option");
         option.value = i;
-        option.textContent = p.name + " (" + p.hours + "h)";
+        option.textContent = p.name;
         pupilSelect.appendChild(option);
     });
 }
 refreshPupils();
 
+/* ---------- AUTO SAVE ---------- */
+
+function getSelectedScaleValue(scaleId) {
+    const selected = document.querySelector(`#${scaleId} .selected`);
+    return selected ? selected.innerText : "";
+}
+
+function setSelectedScaleValue(scaleId, value) {
+    const boxes = document.querySelectorAll(`#${scaleId} div`);
+    boxes.forEach(box => {
+        box.classList.remove("selected");
+        if (box.innerText === value) {
+            box.classList.add("selected");
+        }
+    });
+}
+
+function saveCurrentPupilData() {
+    const index = pupilSelect.value;
+    if (index === "") return;
+
+    pupils[index].lessonData = {
+        lessonHours: lessonHours.value,
+        goal: goal.value,
+        well: well.value,
+        improve: improve.value,
+        achieved: achieved.value,
+        additional: additional.value,
+        scale1: getSelectedScaleValue("scale1"),
+        scale2: getSelectedScaleValue("scale2")
+    };
+
+    localStorage.setItem("pupils", JSON.stringify(pupils));
+}
+
+function loadPupilData() {
+    const index = pupilSelect.value;
+    if (index === "" || !pupils[index].lessonData) return;
+
+    const data = pupils[index].lessonData;
+
+    lessonHours.value = data.lessonHours || 2;
+    goal.value = data.goal || "";
+    well.value = data.well || "";
+    improve.value = data.improve || "";
+    achieved.value = data.achieved || "";
+    additional.value = data.additional || "";
+
+    setSelectedScaleValue("scale1", data.scale1);
+    setSelectedScaleValue("scale2", data.scale2);
+}
+
+pupilSelect.addEventListener("change", loadPupilData);
+
+/* Auto-save while typing */
+document.querySelectorAll("textarea, input").forEach(el => {
+    el.addEventListener("input", saveCurrentPupilData);
+});
+
+/* ---------- Add/Delete ---------- */
+
 function addPupil() {
     const name = prompt("Enter pupil name:");
     if (!name) return;
-    pupils.push({ name: name, hours: 0 });
+    pupils.push({ name: name });
     localStorage.setItem("pupils", JSON.stringify(pupils));
     refreshPupils();
 }
