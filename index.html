@@ -66,16 +66,15 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;fon
 <textarea id="comments"></textarea>
 
 <button onclick="generatePDF()">Generate Lesson PDF</button>
-<button onclick="exportHistory()">Export Full Pupil Progress</button>
 
 <script>
 document.getElementById("date").innerText =
 new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 
-let pupils = JSON.parse(localStorage.getItem("adiStructuredV1")) || {};
+let pupils = JSON.parse(localStorage.getItem("adiStyledV1")) || {};
 let currentPupil=null;
 
-function save(){ localStorage.setItem("adiStructuredV1",JSON.stringify(pupils)); }
+function save(){ localStorage.setItem("adiStyledV1",JSON.stringify(pupils)); }
 
 function loadDropdown(){
 let select=document.getElementById("pupilSelect");
@@ -146,70 +145,49 @@ const { jsPDF } = window.jspdf;
 let pdf=new jsPDF();
 let y=20;
 
-function addSection(title,content){
+function section(title,content){
 pdf.setFontSize(12);
+pdf.setFont(undefined,"bold");
 pdf.text(title,15,y);
+pdf.setFont(undefined,"normal");
 y+=6;
-let split=pdf.splitTextToSize(content||"-",180);
-pdf.rect(15,y-4,180,split.length*6+4);
-pdf.text(split,17,y+2);
-y+=split.length*6+12;
-if(y>260){pdf.addPage();y=20;}
+
+let text=pdf.splitTextToSize(content||"-",175);
+let boxHeight=text.length*6+6;
+
+if(y+boxHeight>270){pdf.addPage();y=20;}
+
+pdf.setDrawColor(0);
+pdf.rect(15,y-4,180,boxHeight);
+pdf.text(text,18,y+2);
+
+y+=boxHeight+10;
 }
 
 let hours=parseFloat(lessonHours.value)||0;
-
 pupils[currentPupil].hours+=hours;
-pupils[currentPupil].lessons.push({
-date:date.innerText,
-goal:goal.value,
-initial:getScale("scale1"),
-final:getScale("scale2"),
-hours:hours
-});
 save();
 updateDisplay();
 
-pdf.setFontSize(14);
-pdf.text("Learner Reflective Log",15,10);
+pdf.setFontSize(16);
+pdf.text("LEARNER REFLECTIVE LOG",105,12,{align:"center"});
 pdf.setFontSize(10);
-pdf.text("Instructor: Alex Heirani",15,16);
-pdf.text("Pupil: "+currentPupil,120,16);
-pdf.text("Date: "+date.innerText,15,22);
-y=30;
+pdf.text("Instructor: Alex Heirani",15,18);
+pdf.text("Pupil: "+currentPupil,120,18);
+pdf.text("Date: "+date.innerText,15,24);
 
-addSection("Lesson Goal",goal.value);
-addSection("Initial Rating",getScale("scale1")+"/10");
-addSection("What didn’t go well",improve.value);
-addSection("What could you do differently",different.value);
-addSection("What went well",well.value);
-addSection("Did you achieve the goal",achieved.value);
-addSection("Final Rating",getScale("scale2")+"/10");
-addSection("Additional Comments",comments.value);
+y=35;
+
+section("Lesson Goal",goal.value);
+section("Initial Self Rating",getScale("scale1")+"/10");
+section("What didn’t go well",improve.value);
+section("What could you do differently",different.value);
+section("What went well",well.value);
+section("Did you achieve the goal",achieved.value);
+section("Final Self Rating",getScale("scale2")+"/10");
+section("Additional Comments",comments.value);
 
 pdf.save("Lesson_"+currentPupil+".pdf");
-}
-
-function exportHistory(){
-if(!currentPupil){alert("Select pupil first");return;}
-const { jsPDF } = window.jspdf;
-let pdf=new jsPDF();
-let y=20;
-
-pdf.text("Full Progress Report - "+currentPupil,15,10);
-
-pupils[currentPupil].lessons.forEach((l,i)=>{
-let text=`Lesson ${i+1} - ${l.date}
-Hours: ${l.hours}
-Initial: ${l.initial}/10
-Final: ${l.final}/10`;
-let split=pdf.splitTextToSize(text,180);
-pdf.text(split,15,y);
-y+=split.length*6+10;
-if(y>260){pdf.addPage();y=20;}
-});
-
-pdf.save("Progress_"+currentPupil+".pdf");
 }
 
 loadDropdown();
