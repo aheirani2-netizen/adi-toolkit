@@ -83,13 +83,13 @@ button {
     margin-bottom: 10px;
 }
 
-/* PRINT OPTIMISED */
+/* ===== PRINT FIX — SAFARI SAFE ===== */
 @media print {
 
   body {
     background: white !important;
     font-size: 13px !important;
-    line-height: 1.5 !important;
+    line-height: 1.6 !important; /* slightly taller to prevent rounding clip */
   }
 
   button { display: none !important; }
@@ -102,24 +102,32 @@ button {
   .section-label {
     page-break-after: avoid !important;
     margin-top: 10px !important;
-    margin-bottom: 3px !important;
+    margin-bottom: 4px !important;
   }
 
-  textarea, input[type="number"] {
+  textarea {
 
     font-size: 13px !important;
-    line-height: 1.5 !important;
+    line-height: 1.6 !important;
 
-    padding: 8px 8px 10px 8px !important; /* extra bottom padding */
+    height: auto !important;          /* remove internal control height */
+    min-height: 0 !important;
 
-    min-height: auto !important;
+    overflow: hidden !important;      /* remove scroll layer */
+    
+    padding: 10px 10px 14px 10px !important; /* extra bottom buffer */
+
+    border: 1px solid #999 !important;
+    border-radius: 6px !important;
 
     box-sizing: border-box !important;
 
     page-break-inside: auto !important;
     break-inside: auto !important;
+  }
 
-    overflow: visible !important; /* prevents clipping */
+  input[type="number"] {
+    padding-bottom: 10px !important;
   }
 
   @page {
@@ -190,7 +198,6 @@ button {
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
-// Create rating scales
 function createScale(containerId) {
     const container = document.getElementById(containerId);
     for (let i = 1; i <= 10; i++) {
@@ -207,7 +214,6 @@ function createScale(containerId) {
 createScale("scale1");
 createScale("scale2");
 
-// Pupil storage
 let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
 const pupilSelect = document.getElementById("pupilSelect");
 
