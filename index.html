@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADI Reflective Log</title shown above in container at /mnt/data/F41C4BB2-C6C4-42BA-92E4-532A4DFC22AA.jpeg>
+<title>ADI Reflective Log</title>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -176,7 +177,10 @@ return document.getElementById(id).getAttribute("data-value")||"";
 }
 
 async function generatePDF(){
-if(!currentPupil){alert("Select a pupil first.");return;}
+if(!currentPupil){
+alert("Select a pupil first.");
+return;
+}
 
 addHours();
 
@@ -186,14 +190,30 @@ buttons.forEach(b=>b.style.display="none");
 const { jsPDF } = window.jspdf;
 
 html2canvas(document.getElementById("formArea"),{scale:2}).then(canvas=>{
-let imgData=canvas.toDataURL("image/png");
-let pdf=new jsPDF("p","mm","a4");
 
-let pageWidth=pdf.internal.pageSize.getWidth();
-let imgHeight=canvas.height*pageWidth/canvas.width;
+let imgData = canvas.toDataURL("image/png");
+let pdf = new jsPDF("p","mm","a4");
 
-pdf.addImage(imgData,"PNG",0,0,pageWidth,imgHeight);
-pdf.save("Lesson_"+currentPupil+".pdf");
+let pageWidth = pdf.internal.pageSize.getWidth();
+let pageHeight = pdf.internal.pageSize.getHeight();
+
+let imgWidth = pageWidth;
+let imgHeight = canvas.height * imgWidth / canvas.width;
+
+let heightLeft = imgHeight;
+let position = 0;
+
+pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+heightLeft -= pageHeight;
+
+while (heightLeft > 0) {
+position = heightLeft - imgHeight;
+pdf.addPage();
+pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+heightLeft -= pageHeight;
+}
+
+pdf.save("Lesson_" + currentPupil + ".pdf");
 
 buttons.forEach(b=>b.style.display="block");
 });
