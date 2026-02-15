@@ -2,15 +2,16 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADI Reflective Log</title>
+<title>ADI Reflective Log</title shown above in container at /mnt/data/F41C4BB2-C6C4-42BA-92E4-532A4DFC22AA.jpeg>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
 body { font-family: Arial; padding:20px; max-width:900px; margin:auto; background:#f4f4f4; }
 h1{text-align:center;}
 input,textarea,select{width:100%;padding:10px;margin-bottom:15px;border-radius:8px;border:1px solid #ccc;font-size:16px;}
 textarea{min-height:80px;}
-button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;font-size:16px;cursor:pointer;}
+button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;font-size:16px;cursor:pointer;background:#111;color:white;}
 .scale-bar{display:flex;margin-bottom:15px;}
 .scale-bar div{flex:1;padding:8px;text-align:center;color:white;font-weight:bold;cursor:pointer;}
 .scale-bar div:nth-child(-n+3){background:#d32f2f;}
@@ -21,16 +22,19 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;fon
 .pupil-bar select{flex:2;}
 .pupil-bar button{flex:1;}
 .total-hours{font-weight:bold;margin-bottom:15px;}
+.hidden-print{display:block;}
 </style>
 </head>
 
 <body>
 
+<div id="formArea">
+
 <h1>LEARNER REFLECTIVE LOG</h1>
 <p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
 
-<div class="pupil-bar">
+<div class="pupil-bar hidden-print">
 <select id="pupilSelect"></select>
 <button onclick="addPupil()">Add</button>
 <button onclick="deletePupil()">Delete</button>
@@ -38,8 +42,8 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;fon
 
 <p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
 
-<label>Lesson Duration (hours):</label>
-<input type="number" step="0.5" id="lessonHours">
+<label class="hidden-print">Lesson Duration (hours):</label>
+<input class="hidden-print" type="number" step="0.5" id="lessonHours">
 
 <label>Lesson Goal:</label>
 <textarea id="goal"></textarea>
@@ -65,8 +69,12 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;fon
 <label>Additional Comments:</label>
 <textarea id="comments"></textarea>
 
+<div class="hidden-print">
 <button onclick="generatePDF()">Generate PDF</button>
 <button onclick="sendEmail()">Send Email Summary</button>
+</div>
+
+</div>
 
 <script>
 document.getElementById("date").innerText =
@@ -167,6 +175,30 @@ function getScale(id){
 return document.getElementById(id).getAttribute("data-value")||"";
 }
 
+async function generatePDF(){
+if(!currentPupil){alert("Select a pupil first.");return;}
+
+addHours();
+
+let buttons=document.querySelectorAll(".hidden-print");
+buttons.forEach(b=>b.style.display="none");
+
+const { jsPDF } = window.jspdf;
+
+html2canvas(document.getElementById("formArea"),{scale:2}).then(canvas=>{
+let imgData=canvas.toDataURL("image/png");
+let pdf=new jsPDF("p","mm","a4");
+
+let pageWidth=pdf.internal.pageSize.getWidth();
+let imgHeight=canvas.height*pageWidth/canvas.width;
+
+pdf.addImage(imgData,"PNG",0,0,pageWidth,imgHeight);
+pdf.save("Lesson_"+currentPupil+".pdf");
+
+buttons.forEach(b=>b.style.display="block");
+});
+}
+
 function buildReport(){
 addHours();
 return `
@@ -198,14 +230,6 @@ Final Rating: ${getScale("scale2")}/10
 Additional Comments:
 ${comments.value}
 `;
-}
-
-function generatePDF(){
-if(!currentPupil){alert("Select a pupil first.");return;}
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF();
-doc.text(doc.splitTextToSize(buildReport(),180),15,20);
-doc.save("Lesson_"+currentPupil+".pdf");
 }
 
 function sendEmail(){
