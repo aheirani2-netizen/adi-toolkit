@@ -23,7 +23,10 @@ input, textarea, select {
     font-size: 16px; 
     box-sizing: border-box;
 }
-textarea { min-height: 100px; resize: vertical; }
+textarea { 
+    min-height: 100px; 
+    resize: vertical; 
+}
 button {
     width: 100%; 
     padding: 14px; 
@@ -72,17 +75,23 @@ button#bestPdfPhone {
 }
 .hidden { display: none !important; }
 
-/* Try to reduce bad page breaks when printing */
+/* Hide button & instructions when printing / saving as PDF */
 @media print {
+  #bestPdfPhone,
+  #phoneInstructions {
+    display: none !important;
+  }
+  /* Try to keep labels with their content */
   .section-label + textarea,
   textarea {
     page-break-inside: avoid;
+    break-inside: avoid;
   }
   h1, p, .total-hours, .scale-bar {
     page-break-after: avoid;
   }
   body {
-    font-size: 14px;
+    font-size: 14px; /* slightly smaller → more content per page */
   }
 }
 </style>
@@ -127,10 +136,10 @@ button#bestPdfPhone {
 <div class="section-label">Additional Comments</div>
 <textarea id="comments"></textarea>
 
-<!-- Button to show instructions – hidden elements won't appear in Print/Save as PDF -->
+<!-- Button to show instructions when needed (hidden during print) -->
 <button id="bestPdfPhone">How to save perfect PDF on phone</button>
 
-<!-- Instructions – hidden by default, only shown when button is tapped -->
+<!-- Instructions – hidden by default, only shown when button tapped -->
 <div id="phoneInstructions" class="instructions hidden">
     <h3>How to save PDF that looks exactly like this page</h3>
     
@@ -244,7 +253,7 @@ function createScale(id) {
 createScale("scale1");
 createScale("scale2");
 
-// Show/hide instructions (these elements stay hidden during Print)
+// Toggle instructions visibility
 document.getElementById("bestPdfPhone").onclick = function() {
     document.getElementById("phoneInstructions").classList.toggle("hidden");
     window.scrollTo({top: 0, behavior: 'smooth'});
