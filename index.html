@@ -44,27 +44,42 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;fon
 <label>Lesson Goal:</label>
 <textarea id="goal"></textarea>
 
-<label>Initial Rating:</label>
+<label>Initial Self Rating:</label>
 <div class="scale-bar" id="scale1"></div>
 
-<label>Final Rating:</label>
+<label>What didn’t go well?</label>
+<textarea id="improve"></textarea>
+
+<label>What could you do differently?</label>
+<textarea id="different"></textarea>
+
+<label>What went well?</label>
+<textarea id="well"></textarea>
+
+<label>Did you achieve the goal?</label>
+<textarea id="achieved"></textarea>
+
+<label>Final Self Rating:</label>
 <div class="scale-bar" id="scale2"></div>
 
+<label>Additional Comments:</label>
+<textarea id="comments"></textarea>
+
 <button onclick="generatePDF()">Generate PDF</button>
-<button onclick="sharePDF()">Share PDF</button>
+<button onclick="sendEmail()">Send Email Summary</button>
 
 <script>
 document.getElementById("date").innerText =
 new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 
-let pupils = JSON.parse(localStorage.getItem("pupils")) || {};
+let pupils = JSON.parse(localStorage.getItem("adiPupils")) || {};
 let currentPupil = null;
 
-function saveData(){
-localStorage.setItem("pupils", JSON.stringify(pupils));
+function save(){
+localStorage.setItem("adiPupils", JSON.stringify(pupils));
 }
 
-function refreshDropdown(){
+function loadDropdown(){
 let select=document.getElementById("pupilSelect");
 select.innerHTML="";
 let names=Object.keys(pupils);
@@ -76,10 +91,10 @@ return;
 }
 
 names.forEach(name=>{
-let option=document.createElement("option");
-option.value=name;
-option.text=name;
-select.appendChild(option);
+let opt=document.createElement("option");
+opt.value=name;
+opt.text=name;
+select.appendChild(opt);
 });
 
 if(!currentPupil || !pupils[currentPupil]){
@@ -96,20 +111,20 @@ if(!name) return;
 
 if(!pupils[name]){
 pupils[name]={hours:0};
-saveData();
+save();
 }
 
 currentPupil=name;
-refreshDropdown();
+loadDropdown();
 }
 
 function deletePupil(){
 if(!currentPupil) return;
 if(confirm("Delete "+currentPupil+"?")){
 delete pupils[currentPupil];
-saveData();
+save();
 currentPupil=null;
-refreshDropdown();
+loadDropdown();
 }
 }
 
@@ -128,7 +143,7 @@ if(!currentPupil) return;
 let hours=parseFloat(document.getElementById("lessonHours").value)||0;
 if(hours>0){
 pupils[currentPupil].hours+=hours;
-saveData();
+save();
 updateDisplay();
 }
 }
@@ -148,6 +163,10 @@ document.getElementById(id).appendChild(div);
 createScale("scale1");
 createScale("scale2");
 
+function getScale(id){
+return document.getElementById(id).getAttribute("data-value")||"";
+}
+
 function buildReport(){
 addHours();
 return `
@@ -156,6 +175,28 @@ Date: ${date.innerText}
 Pupil: ${currentPupil}
 Lesson Duration: ${lessonHours.value}
 Total Hours: ${pupils[currentPupil].hours}
+
+Lesson Goal:
+${goal.value}
+
+Initial Rating: ${getScale("scale1")}/10
+
+What didn’t go well:
+${improve.value}
+
+What to do differently:
+${different.value}
+
+What went well:
+${well.value}
+
+Goal Achieved:
+${achieved.value}
+
+Final Rating: ${getScale("scale2")}/10
+
+Additional Comments:
+${comments.value}
 `;
 }
 
@@ -163,31 +204,18 @@ function generatePDF(){
 if(!currentPupil){alert("Select a pupil first.");return;}
 const { jsPDF } = window.jspdf;
 const doc = new jsPDF();
-doc.text(buildReport(),15,20);
+doc.text(doc.splitTextToSize(buildReport(),180),15,20);
 doc.save("Lesson_"+currentPupil+".pdf");
 }
 
-async function sharePDF(){
+function sendEmail(){
 if(!currentPupil){alert("Select a pupil first.");return;}
-
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF();
-doc.text(buildReport(),15,20);
-const blob = doc.output("blob");
-const file = new File([blob], "Lesson.pdf", { type: "application/pdf" });
-
-if (navigator.share && navigator.canShare && navigator.canShare({ files:[file] })) {
-await navigator.share({
-files:[file],
-title:"Lesson Reflection"
-});
-} else {
-doc.save("Lesson_"+currentPupil+".pdf");
-alert("Sharing not supported — PDF downloaded instead.");
-}
+let subject=`Lesson Reflection – ${currentPupil}`;
+let body=buildReport();
+window.location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-refreshDropdown();
+loadDropdown();
 </script>
 
 </body>
