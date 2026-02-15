@@ -71,6 +71,20 @@ button#bestPdfPhone {
     line-height: 1.5;
 }
 .hidden { display: none !important; }
+
+/* Try to reduce bad page breaks when printing */
+@media print {
+  .section-label + textarea,
+  textarea {
+    page-break-inside: avoid;
+  }
+  h1, p, .total-hours, .scale-bar {
+    page-break-after: avoid;
+  }
+  body {
+    font-size: 14px;
+  }
+}
 </style>
 </head>
 <body>
@@ -103,7 +117,7 @@ button#bestPdfPhone {
 
 <div class="section-label">What didn’t go well? / What could you do differently?</div>
 <textarea id="improve"></textarea>
-<br>
+
 <div class="section-label">Did you achieve the goal? / Reflections</div>
 <textarea id="achieved"></textarea>
 
@@ -113,34 +127,34 @@ button#bestPdfPhone {
 <div class="section-label">Additional Comments</div>
 <textarea id="comments"></textarea>
 
-<!-- This button opens instructions – it will NOT appear in the PDF unless clicked -->
+<!-- Button to show instructions – hidden elements won't appear in Print/Save as PDF -->
 <button id="bestPdfPhone">How to save perfect PDF on phone</button>
 
-<!-- Instructions are hidden by default and only appear when button is tapped -->
+<!-- Instructions – hidden by default, only shown when button is tapped -->
 <div id="phoneInstructions" class="instructions hidden">
     <h3>How to save PDF that looks exactly like this page</h3>
     
     <p><strong>iPhone (Safari):</strong></p>
     <ol>
         <li>Scroll to top of the page</li>
-        <li>Tap the Share icon (square with arrow pointing up)</li>
+        <li>Tap the Share icon (square with arrow up)</li>
         <li>Scroll down and tap <strong>Print</strong></li>
         <li>Pinch outwards with two fingers on the preview to see all pages</li>
-        <li>Tap the Share icon again in the top-right → choose <strong>Save to Files</strong> or <strong>Mail</strong></li>
+        <li>Tap the Share icon again (top-right) → choose <strong>Save to Files</strong> or <strong>Mail</strong></li>
     </ol>
 
     <p><strong>Android (Chrome):</strong></p>
     <ol>
-        <li>Tap the three dots ⋮ in the top-right corner</li>
+        <li>Tap the three dots ⋮ (top right)</li>
         <li>Tap <strong>Share</strong> → <strong>Print</strong></li>
         <li>Select <strong>Save as PDF</strong></li>
-        <li>Tap the PDF icon or <strong>Save</strong> button</li>
-        <li>Choose a folder and save the file</li>
+        <li>Tap the PDF/save icon</li>
+        <li>Choose folder and save</li>
     </ol>
 
-    <p>After saving, you can attach the PDF to an email from your Files/Downloads folder.</p>
+    <p>Then attach the PDF to email from Files/Downloads.</p>
 
-    <button onclick="document.getElementById('phoneInstructions').classList.add('hidden')">Close instructions</button>
+    <button onclick="document.getElementById('phoneInstructions').classList.add('hidden')">Close</button>
 </div>
 
 </div>
@@ -230,7 +244,7 @@ function createScale(id) {
 createScale("scale1");
 createScale("scale2");
 
-// Show / hide instructions
+// Show/hide instructions (these elements stay hidden during Print)
 document.getElementById("bestPdfPhone").onclick = function() {
     document.getElementById("phoneInstructions").classList.toggle("hidden");
     window.scrollTo({top: 0, behavior: 'smooth'});
