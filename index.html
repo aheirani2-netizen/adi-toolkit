@@ -44,6 +44,7 @@ button {
     color: white;
 }
 
+.print-btn { background: #2e7d32; }
 .save-btn { background: #1976d2; }
 
 .scale-bar { display: flex; gap: 4px; margin-bottom: 20px; }
@@ -80,6 +81,48 @@ button {
     margin-bottom: 4px;
     font-weight: bold;
 }
+
+.print-section {
+    margin-bottom: 8px;
+}
+
+/* PRINT SETTINGS */
+@media print {
+
+  body {
+    background: white !important;
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+  }
+
+  button { display: none !important; }
+
+  .print-section {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .section-label {
+    page-break-after: avoid !important;
+    margin-top: 10px !important;
+  }
+
+  textarea {
+    font-size: 13px !important;
+    line-height: 1.65 !important;
+    height: auto !important;
+    overflow: hidden !important;
+    padding: 10px 10px 16px 10px !important;
+    margin-bottom: 10px !important;
+    border: 1px solid #999 !important;
+    border-radius: 6px !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+}
 </style>
 </head>
 <body>
@@ -97,36 +140,53 @@ button {
 
 <p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
 
-<button class="save-btn" onclick="saveLesson()">Save Lesson (TXT + PDF)</button>
+<button class="save-btn" onclick="saveLesson()">Save Lesson</button>
+<button class="print-btn" onclick="window.print()">Download PDF</button>
 
-<div class="section-label">Lesson Duration (hours)</div>
-<input type="number" step="0.25" id="lessonHours" value="2">
+<div class="print-section">
+    <div class="section-label">Lesson Duration (hours)</div>
+    <input type="number" step="0.25" id="lessonHours" value="2">
+</div>
 
-<div class="section-label">Lesson Goal</div>
-<textarea id="goal"></textarea>
+<div class="print-section">
+    <div class="section-label">Lesson Goal</div>
+    <textarea id="goal"></textarea>
+</div>
 
-<div class="section-label">Initial Self Rating (1–10)</div>
-<div class="scale-bar" id="scale1"></div>
+<div class="print-section">
+    <div class="section-label">Initial Self Rating (1–10)</div>
+    <div class="scale-bar" id="scale1"></div>
+</div>
 
-<div class="section-label">What went well?</div>
-<textarea id="well"></textarea>
+<div class="print-section">
+    <div class="section-label">What went well?</div>
+    <textarea id="well"></textarea>
+</div>
 
-<div class="section-label">What didn’t go well?</div>
-<textarea id="improve"></textarea>
+<div class="print-section">
+    <div class="section-label">What didn’t go well?</div>
+    <textarea id="improve"></textarea>
+</div>
 
-<div class="section-label">Did you achieve the goal?</div>
-<textarea id="achieved"></textarea>
+<div class="print-section">
+    <div class="section-label">Did you achieve the goal?</div>
+    <textarea id="achieved"></textarea>
+</div>
 
-<div class="section-label">Final Self Rating (1–10)</div>
-<div class="scale-bar" id="scale2"></div>
+<div class="print-section">
+    <div class="section-label">Final Self Rating (1–10)</div>
+    <div class="scale-bar" id="scale2"></div>
+</div>
 
-<div class="section-label">Additional Comments</div>
-<textarea id="additional"></textarea>
+<div class="print-section">
+    <div class="section-label">Additional Comments</div>
+    <textarea id="additional"></textarea>
+</div>
 
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
-/* SCALE */
+/* CREATE SCALES */
 function createScale(id) {
     const container = document.getElementById(id);
     for (let i = 1; i <= 10; i++) {
@@ -145,7 +205,6 @@ createScale("scale2");
 /* STORAGE */
 let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
 const pupilSelect = document.getElementById("pupilSelect");
-const totalHoursDisplay = document.getElementById("totalHours");
 
 function refreshPupils() {
     pupilSelect.innerHTML = "";
@@ -161,7 +220,7 @@ refreshPupils();
 
 function updateHours() {
     const index = pupilSelect.value;
-    totalHoursDisplay.innerText = (pupils[index] && pupils[index].totalHours) || 0;
+    totalHours.innerText = (pupils[index] && pupils[index].totalHours) || 0;
 }
 
 function getScaleValue(id) {
@@ -169,83 +228,45 @@ function getScaleValue(id) {
     return selected ? selected.innerText : "";
 }
 
-/* DOWNLOAD CUMULATIVE TXT */
-function downloadCumulativeFile(pupil) {
-    let content = `LEARNER REFLECTIVE LOG
+/* DOWNLOAD TXT FILE */
+function downloadLessonFile(pupilName, lessonData) {
+    const date = lessonData.date.replaceAll("/", "-");
+
+    const content = 
+`LEARNER REFLECTIVE LOG
 Instructor: Alex Heirani
-Student: ${pupil.name}
+Student: ${pupilName}
+Date: ${lessonData.date}
 
-`;
-
-    pupil.lessons.forEach((lesson, i) => {
-        content += `
-=============================
-Lesson ${i + 1}
-Date: ${lesson.date}
-Duration: ${lesson.hours} hours
+Lesson Duration: ${lessonData.hours} hours
 
 Lesson Goal:
-${lesson.goal}
+${lessonData.goal}
 
-Initial Rating: ${lesson.scale1}
+Initial Self Rating: ${lessonData.scale1}
 
 What went well:
-${lesson.well}
+${lessonData.well}
 
 What didn’t go well:
-${lesson.improve}
+${lessonData.improve}
 
 Did you achieve the goal?
-${lesson.achieved}
+${lessonData.achieved}
 
-Final Rating: ${lesson.scale2}
+Final Self Rating: ${lessonData.scale2}
 
 Additional Comments:
-${lesson.additional}
-=============================
+${lessonData.additional}
 `;
-    });
 
     const blob = new Blob([content], { type: "text/plain" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${pupil.name.replace(/\s+/g, "_")}_ALL_LESSONS.txt`;
+    link.download = `${pupilName.replace(/\s+/g, "_")}_${date}.txt`;
+    document.body.appendChild(link);
     link.click();
-}
-
-/* OPEN PDF WITH PRINT POPUP */
-function openPDFforPrinting(pupilName, lesson) {
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-        <html>
-        <head>
-        <title>${pupilName} Lesson</title>
-        <style>
-        body { font-family: Arial; padding: 40px; }
-        h1 { text-align:center; }
-        h3 { margin-top:20px; }
-        </style>
-        </head>
-        <body>
-        <h1>LEARNER REFLECTIVE LOG</h1>
-        <p><strong>Instructor:</strong> Alex Heirani</p>
-        <p><strong>Student:</strong> ${pupilName}</p>
-        <p><strong>Date:</strong> ${lesson.date}</p>
-
-        <h3>Lesson Duration</h3><p>${lesson.hours} hours</p>
-        <h3>Lesson Goal</h3><p>${lesson.goal}</p>
-        <h3>Initial Self Rating</h3><p>${lesson.scale1}</p>
-        <h3>What went well</h3><p>${lesson.well}</p>
-        <h3>What didn’t go well</h3><p>${lesson.improve}</p>
-        <h3>Did you achieve the goal?</h3><p>${lesson.achieved}</p>
-        <h3>Final Self Rating</h3><p>${lesson.scale2}</p>
-        <h3>Additional Comments</h3><p>${lesson.additional}</p>
-        </body>
-        </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
+    document.body.removeChild(link);
 }
 
 /* SAVE LESSON */
@@ -253,7 +274,7 @@ function saveLesson() {
     const index = pupilSelect.value;
     if (index === "") return alert("Select a pupil.");
 
-    const hours = parseFloat(document.getElementById("lessonHours").value) || 0;
+    const hours = parseFloat(lessonHours.value) || 0;
 
     const lesson = {
         date: new Date().toLocaleDateString(),
@@ -269,16 +290,17 @@ function saveLesson() {
 
     if (!pupils[index].lessons) pupils[index].lessons = [];
     pupils[index].lessons.push(lesson);
+
     pupils[index].totalHours = (pupils[index].totalHours || 0) + hours;
 
     localStorage.setItem("pupils", JSON.stringify(pupils));
     updateHours();
 
-    downloadCumulativeFile(pupils[index]);
-    openPDFforPrinting(pupils[index].name, lesson);
+    downloadLessonFile(pupils[index].name, lesson);
+
+    alert("Lesson saved and downloaded.");
 }
 
-/* ADD / DELETE PUPIL */
 function addPupil() {
     const name = prompt("Enter pupil name:");
     if (!name) return;
