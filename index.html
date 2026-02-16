@@ -18,7 +18,7 @@ h1 { text-align: center; margin-bottom: 20px; }
 
 input, textarea, select {
     width: 100%; 
-    padding: 16px; 
+    padding: 10px; 
     margin-bottom: 15px; 
     border-radius: 8px;
     border: 1px solid #ccc; 
@@ -86,6 +86,7 @@ button {
     margin-bottom: 8px;
 }
 
+/* PRINT SETTINGS */
 @media print {
 
   body {
@@ -111,7 +112,7 @@ button {
     line-height: 1.65 !important;
     height: auto !important;
     overflow: hidden !important;
-    padding: 16px !important;
+    padding: 10px 10px 16px 10px !important;
     margin-bottom: 10px !important;
     border: 1px solid #999 !important;
     border-radius: 6px !important;
@@ -140,7 +141,7 @@ button {
 <p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
 
 <button class="save-btn" onclick="saveLesson()">Save Lesson</button>
-<button class="print-btn" onclick="window.print()">Download / Print PDF</button>
+<button class="print-btn" onclick="window.print()">Download PDF</button>
 
 <div class="print-section">
     <div class="section-label">Lesson Duration (hours)</div>
@@ -204,7 +205,6 @@ createScale("scale2");
 /* STORAGE */
 let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
 const pupilSelect = document.getElementById("pupilSelect");
-const totalHours = document.getElementById("totalHours");
 
 function refreshPupils() {
     pupilSelect.innerHTML = "";
@@ -290,6 +290,7 @@ function saveLesson() {
 
     if (!pupils[index].lessons) pupils[index].lessons = [];
     pupils[index].lessons.push(lesson);
+
     pupils[index].totalHours = (pupils[index].totalHours || 0) + hours;
 
     localStorage.setItem("pupils", JSON.stringify(pupils));
