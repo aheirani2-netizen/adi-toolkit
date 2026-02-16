@@ -46,8 +46,7 @@ button {
 }
 
 .save-btn { background: #1976d2; }
-.pdf-btn { background: #2e7d32; }
-.print-btn { background: #555; }
+.email-btn { background: #2e7d32; }
 
 .scale-bar { display: flex; gap: 4px; margin-bottom: 20px; }
 .scale-bar div {
@@ -80,11 +79,6 @@ button {
     margin-bottom: 4px;
     font-weight: bold;
 }
-
-/* Hide buttons when printing */
-@media print {
-  button { display: none !important; }
-}
 </style>
 </head>
 <body>
@@ -105,8 +99,7 @@ button {
 <p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
 
 <button class="save-btn" onclick="saveLesson()">Save Lesson</button>
-<button class="pdf-btn" onclick="downloadPDF()">Download Real PDF</button>
-<button class="print-btn" onclick="window.print()">Print / Email PDF</button>
+<button class="email-btn" onclick="savePDFandEmail()">Save PDF & Open Email</button>
 
 <div class="section-label">Lesson Duration (hours)</div>
 <input type="number" step="0.25" id="lessonHours" value="2">
@@ -175,31 +168,20 @@ function updateHours() {
     totalHoursDisplay.innerText = (pupils[index] && pupils[index].totalHours) || 0;
 }
 
-function getScaleValue(id) {
-    const selected = document.querySelector(`#${id} .selected`);
-    return selected ? selected.innerText : "";
-}
-
+/* SAVE LESSON */
 function saveLesson() {
     const index = pupilSelect.value;
     if (index === "") return alert("Select a pupil.");
 
     const hours = parseFloat(lessonHours.value) || 0;
 
-    const lesson = {
-        date: new Date().toLocaleDateString(),
-        hours,
-        goal: goal.value,
-        well: well.value,
-        improve: improve.value,
-        achieved: achieved.value,
-        additional: additional.value,
-        scale1: getScaleValue("scale1"),
-        scale2: getScaleValue("scale2")
-    };
-
     if (!pupils[index].lessons) pupils[index].lessons = [];
-    pupils[index].lessons.push(lesson);
+
+    pupils[index].lessons.push({
+        date: new Date().toLocaleDateString(),
+        hours
+    });
+
     pupils[index].totalHours = (pupils[index].totalHours || 0) + hours;
 
     localStorage.setItem("pupils", JSON.stringify(pupils));
@@ -208,10 +190,41 @@ function saveLesson() {
     alert("Lesson saved.");
 }
 
-/* REAL PDF DOWNLOAD */
-async function downloadPDF() {
+/* ADD PUPIL WITH EMAIL */
+function addPupil() {
+    const name = prompt("Enter pupil name:");
+    if (!name) return;
+
+    const email = prompt("Enter pupil email address:");
+    if (!email) return alert("Email is required.");
+
+    pupils.push({ 
+        name, 
+        email,
+        totalHours: 0,
+        lessons: []
+    });
+
+    localStorage.setItem("pupils", JSON.stringify(pupils));
+    refreshPupils();
+}
+
+/* DELETE */
+function deletePupil() {
+    const index = pupilSelect.value;
+    if (index === "") return;
+    pupils.splice(index, 1);
+    localStorage.setItem("pupils", JSON.stringify(pupils));
+    refreshPupils();
+}
+
+/* PDF + EMAIL */
+async function savePDFandEmail() {
     const index = pupilSelect.value;
     if (index === "") return alert("Select a pupil.");
+
+    const pupil = pupils[index];
+    const date = new Date().toLocaleDateString().replaceAll("/", "-");
 
     const { jsPDF } = window.jspdf;
     const element = document.getElementById("formArea");
@@ -225,26 +238,21 @@ async function downloadPDF() {
 
     pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
 
-    const pupilName = pupils[index].name.replace(/\s+/g, "_");
-    const date = new Date().toLocaleDateString().replaceAll("/", "-");
+    const fileName = `${pupil.name.replace(/\s+/g, "_")}_${date}.pdf`;
+    pdf.save(fileName);
 
-    pdf.save(`${pupilName}_${date}.pdf`);
-}
+    const subject = `Reflective Log - ${pupil.name} - ${date}`;
+    const body =
+`Hi ${pupil.name},
 
-function addPupil() {
-    const name = prompt("Enter pupil name:");
-    if (!name) return;
-    pupils.push({ name, totalHours: 0, lessons: [] });
-    localStorage.setItem("pupils", JSON.stringify(pupils));
-    refreshPupils();
-}
+Please find attached your reflective log from today’s lesson.
 
-function deletePupil() {
-    const index = pupilSelect.value;
-    if (index === "") return;
-    pupils.splice(index, 1);
-    localStorage.setItem("pupils", JSON.stringify(pupils));
-    refreshPupils();
+Kind regards,
+Alex Heirani`;
+
+    const mailtoLink = `mailto:${pupil.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    window.location.href = mailtoLink;
 }
 
 pupilSelect.addEventListener("change", updateHours);
