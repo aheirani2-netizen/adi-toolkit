@@ -44,7 +44,6 @@ button {
     color: white;
 }
 
-.print-btn { background: #2e7d32; }
 .save-btn { background: #1976d2; }
 
 .scale-bar { display: flex; gap: 4px; margin-bottom: 20px; }
@@ -81,48 +80,6 @@ button {
     margin-bottom: 4px;
     font-weight: bold;
 }
-
-.print-section {
-    margin-bottom: 8px;
-}
-
-/* PRINT SETTINGS */
-@media print {
-
-  body {
-    background: white !important;
-    font-size: 13px !important;
-    line-height: 1.6 !important;
-  }
-
-  button { display: none !important; }
-
-  .print-section {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  .section-label {
-    page-break-after: avoid !important;
-    margin-top: 10px !important;
-  }
-
-  textarea {
-    font-size: 13px !important;
-    line-height: 1.65 !important;
-    height: auto !important;
-    overflow: hidden !important;
-    padding: 10px 10px 16px 10px !important;
-    margin-bottom: 10px !important;
-    border: 1px solid #999 !important;
-    border-radius: 6px !important;
-  }
-
-  @page {
-    size: A4;
-    margin: 10mm;
-  }
-}
 </style>
 </head>
 <body>
@@ -140,48 +97,31 @@ button {
 
 <p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
 
-<button class="save-btn" onclick="saveLesson()">Save Lesson</button>
-<button class="print-btn" onclick="window.print()">Download Blank PDF</button>
+<button class="save-btn" onclick="saveLesson()">Save Lesson (TXT + PDF)</button>
 
-<div class="print-section">
-    <div class="section-label">Lesson Duration (hours)</div>
-    <input type="number" step="0.25" id="lessonHours" value="2">
-</div>
+<div class="section-label">Lesson Duration (hours)</div>
+<input type="number" step="0.25" id="lessonHours" value="2">
 
-<div class="print-section">
-    <div class="section-label">Lesson Goal</div>
-    <textarea id="goal"></textarea>
-</div>
+<div class="section-label">Lesson Goal</div>
+<textarea id="goal"></textarea>
 
-<div class="print-section">
-    <div class="section-label">Initial Self Rating (1–10)</div>
-    <div class="scale-bar" id="scale1"></div>
-</div>
+<div class="section-label">Initial Self Rating (1–10)</div>
+<div class="scale-bar" id="scale1"></div>
 
-<div class="print-section">
-    <div class="section-label">What went well?</div>
-    <textarea id="well"></textarea>
-</div>
+<div class="section-label">What went well?</div>
+<textarea id="well"></textarea>
 
-<div class="print-section">
-    <div class="section-label">What didn’t go well?</div>
-    <textarea id="improve"></textarea>
-</div>
+<div class="section-label">What didn’t go well?</div>
+<textarea id="improve"></textarea>
 
-<div class="print-section">
-    <div class="section-label">Did you achieve the goal?</div>
-    <textarea id="achieved"></textarea>
-</div>
+<div class="section-label">Did you achieve the goal?</div>
+<textarea id="achieved"></textarea>
 
-<div class="print-section">
-    <div class="section-label">Final Self Rating (1–10)</div>
-    <div class="scale-bar" id="scale2"></div>
-</div>
+<div class="section-label">Final Self Rating (1–10)</div>
+<div class="scale-bar" id="scale2"></div>
 
-<div class="print-section">
-    <div class="section-label">Additional Comments</div>
-    <textarea id="additional"></textarea>
-</div>
+<div class="section-label">Additional Comments</div>
+<textarea id="additional"></textarea>
 
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
@@ -270,60 +210,45 @@ ${lesson.additional}
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = `${pupil.name.replace(/\s+/g, "_")}_ALL_LESSONS.txt`;
-    document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
 }
 
-/* OPEN PRINTABLE LESSON PDF */
-function openPrintablePDF(pupilName, lesson) {
-    const win = window.open('', '_blank');
+/* AUTO PDF DOWNLOAD */
+function downloadPDF(pupilName, lesson) {
 
-    win.document.write(`
-        <html>
-        <head>
-        <title>${pupilName} Lesson</title>
-        <style>
-        body { font-family: Arial; padding: 40px; }
-        h1 { text-align:center; }
-        h3 { margin-top:20px; }
-        </style>
-        </head>
-        <body>
-        <h1>LEARNER REFLECTIVE LOG</h1>
-        <p><strong>Instructor:</strong> Alex Heirani</p>
-        <p><strong>Student:</strong> ${pupilName}</p>
-        <p><strong>Date:</strong> ${lesson.date}</p>
+    const htmlContent = `
+    <html>
+    <head>
+    <title>${pupilName} Lesson</title>
+    <style>
+    body { font-family: Arial; padding: 40px; }
+    h1 { text-align:center; }
+    h3 { margin-top:20px; }
+    </style>
+    </head>
+    <body>
+    <h1>LEARNER REFLECTIVE LOG</h1>
+    <p><strong>Instructor:</strong> Alex Heirani</p>
+    <p><strong>Student:</strong> ${pupilName}</p>
+    <p><strong>Date:</strong> ${lesson.date}</p>
 
-        <h3>Lesson Duration</h3>
-        <p>${lesson.hours} hours</p>
+    <h3>Lesson Duration</h3><p>${lesson.hours} hours</p>
+    <h3>Lesson Goal</h3><p>${lesson.goal}</p>
+    <h3>Initial Self Rating</h3><p>${lesson.scale1}</p>
+    <h3>What went well</h3><p>${lesson.well}</p>
+    <h3>What didn’t go well</h3><p>${lesson.improve}</p>
+    <h3>Did you achieve the goal?</h3><p>${lesson.achieved}</p>
+    <h3>Final Self Rating</h3><p>${lesson.scale2}</p>
+    <h3>Additional Comments</h3><p>${lesson.additional}</p>
+    </body>
+    </html>
+    `;
 
-        <h3>Lesson Goal</h3>
-        <p>${lesson.goal}</p>
-
-        <h3>Initial Self Rating</h3>
-        <p>${lesson.scale1}</p>
-
-        <h3>What went well</h3>
-        <p>${lesson.well}</p>
-
-        <h3>What didn’t go well</h3>
-        <p>${lesson.improve}</p>
-
-        <h3>Did you achieve the goal?</h3>
-        <p>${lesson.achieved}</p>
-
-        <h3>Final Self Rating</h3>
-        <p>${lesson.scale2}</p>
-
-        <h3>Additional Comments</h3>
-        <p>${lesson.additional}</p>
-        </body>
-        </html>
-    `);
-
-    win.document.close();
-    win.print();
+    const blob = new Blob([htmlContent], { type: "application/pdf" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${pupilName.replace(/\s+/g, "_")}_${lesson.date.replaceAll("/", "-")}.pdf`;
+    link.click();
 }
 
 /* SAVE LESSON */
@@ -347,16 +272,15 @@ function saveLesson() {
 
     if (!pupils[index].lessons) pupils[index].lessons = [];
     pupils[index].lessons.push(lesson);
-
     pupils[index].totalHours = (pupils[index].totalHours || 0) + hours;
 
     localStorage.setItem("pupils", JSON.stringify(pupils));
     updateHours();
 
     downloadCumulativeFile(pupils[index]);
-    openPrintablePDF(pupils[index].name, lesson);
+    downloadPDF(pupils[index].name, lesson);
 
-    alert("Lesson saved. TXT downloaded. PDF ready to print.");
+    alert("Lesson saved. TXT + PDF downloaded.");
 }
 
 function addPupil() {
