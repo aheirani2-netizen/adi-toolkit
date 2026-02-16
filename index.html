@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reflective Log</title>
+<title>ADI Reflective Log</title>
 
 <style>
 body { 
@@ -86,7 +86,7 @@ button {
     margin-bottom: 8px;
 }
 
-/* ===== PRINT CONTROL ===== */
+/* PRINT SETTINGS */
 @media print {
 
   body {
@@ -110,13 +110,10 @@ button {
   textarea {
     font-size: 13px !important;
     line-height: 1.65 !important;
-
     height: auto !important;
     overflow: hidden !important;
-
-    padding: 10px 10px 16px 10px !important; /* 16px bottom padding */
+    padding: 10px 10px 16px 10px !important;
     margin-bottom: 10px !important;
-
     border: 1px solid #999 !important;
     border-radius: 6px !important;
   }
@@ -189,7 +186,7 @@ button {
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
-/* SCALE */
+/* CREATE SCALES */
 function createScale(id) {
     const container = document.getElementById(id);
     for (let i = 1; i <= 10; i++) {
@@ -231,6 +228,48 @@ function getScaleValue(id) {
     return selected ? selected.innerText : "";
 }
 
+/* DOWNLOAD TXT FILE */
+function downloadLessonFile(pupilName, lessonData) {
+    const date = lessonData.date.replaceAll("/", "-");
+
+    const content = 
+`LEARNER REFLECTIVE LOG
+Instructor: Alex Heirani
+Student: ${pupilName}
+Date: ${lessonData.date}
+
+Lesson Duration: ${lessonData.hours} hours
+
+Lesson Goal:
+${lessonData.goal}
+
+Initial Self Rating: ${lessonData.scale1}
+
+What went well:
+${lessonData.well}
+
+What didn’t go well:
+${lessonData.improve}
+
+Did you achieve the goal?
+${lessonData.achieved}
+
+Final Self Rating: ${lessonData.scale2}
+
+Additional Comments:
+${lessonData.additional}
+`;
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${pupilName.replace(/\s+/g, "_")}_${date}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+/* SAVE LESSON */
 function saveLesson() {
     const index = pupilSelect.value;
     if (index === "") return alert("Select a pupil.");
@@ -256,7 +295,10 @@ function saveLesson() {
 
     localStorage.setItem("pupils", JSON.stringify(pupils));
     updateHours();
-    alert("Lesson saved.");
+
+    downloadLessonFile(pupils[index].name, lesson);
+
+    alert("Lesson saved and downloaded.");
 }
 
 function addPupil() {
