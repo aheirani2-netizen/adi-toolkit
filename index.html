@@ -213,42 +213,39 @@ ${lesson.additional}
     link.click();
 }
 
-/* AUTO PDF DOWNLOAD */
-function downloadPDF(pupilName, lesson) {
+/* OPEN PDF WITH PRINT POPUP */
+function openPDFforPrinting(pupilName, lesson) {
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+        <title>${pupilName} Lesson</title>
+        <style>
+        body { font-family: Arial; padding: 40px; }
+        h1 { text-align:center; }
+        h3 { margin-top:20px; }
+        </style>
+        </head>
+        <body>
+        <h1>LEARNER REFLECTIVE LOG</h1>
+        <p><strong>Instructor:</strong> Alex Heirani</p>
+        <p><strong>Student:</strong> ${pupilName}</p>
+        <p><strong>Date:</strong> ${lesson.date}</p>
 
-    const htmlContent = `
-    <html>
-    <head>
-    <title>${pupilName} Lesson</title>
-    <style>
-    body { font-family: Arial; padding: 40px; }
-    h1 { text-align:center; }
-    h3 { margin-top:20px; }
-    </style>
-    </head>
-    <body>
-    <h1>LEARNER REFLECTIVE LOG</h1>
-    <p><strong>Instructor:</strong> Alex Heirani</p>
-    <p><strong>Student:</strong> ${pupilName}</p>
-    <p><strong>Date:</strong> ${lesson.date}</p>
-
-    <h3>Lesson Duration</h3><p>${lesson.hours} hours</p>
-    <h3>Lesson Goal</h3><p>${lesson.goal}</p>
-    <h3>Initial Self Rating</h3><p>${lesson.scale1}</p>
-    <h3>What went well</h3><p>${lesson.well}</p>
-    <h3>What didn’t go well</h3><p>${lesson.improve}</p>
-    <h3>Did you achieve the goal?</h3><p>${lesson.achieved}</p>
-    <h3>Final Self Rating</h3><p>${lesson.scale2}</p>
-    <h3>Additional Comments</h3><p>${lesson.additional}</p>
-    </body>
-    </html>
-    `;
-
-    const blob = new Blob([htmlContent], { type: "application/pdf" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${pupilName.replace(/\s+/g, "_")}_${lesson.date.replaceAll("/", "-")}.pdf`;
-    link.click();
+        <h3>Lesson Duration</h3><p>${lesson.hours} hours</p>
+        <h3>Lesson Goal</h3><p>${lesson.goal}</p>
+        <h3>Initial Self Rating</h3><p>${lesson.scale1}</p>
+        <h3>What went well</h3><p>${lesson.well}</p>
+        <h3>What didn’t go well</h3><p>${lesson.improve}</p>
+        <h3>Did you achieve the goal?</h3><p>${lesson.achieved}</p>
+        <h3>Final Self Rating</h3><p>${lesson.scale2}</p>
+        <h3>Additional Comments</h3><p>${lesson.additional}</p>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
 }
 
 /* SAVE LESSON */
@@ -278,11 +275,10 @@ function saveLesson() {
     updateHours();
 
     downloadCumulativeFile(pupils[index]);
-    downloadPDF(pupils[index].name, lesson);
-
-    alert("Lesson saved. TXT + PDF downloaded.");
+    openPDFforPrinting(pupils[index].name, lesson);
 }
 
+/* ADD / DELETE PUPIL */
 function addPupil() {
     const name = prompt("Enter pupil name:");
     if (!name) return;
