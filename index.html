@@ -1,192 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADI Reflective Log</title>
-
-<style>
-body { 
-    font-family: Arial, sans-serif; 
-    padding: 20px; 
-    max-width: 900px; 
-    margin: auto; 
-    background: #f4f4f4; 
-    line-height: 1.5;
-}
-h1 { text-align: center; margin-bottom: 20px; }
-
-input, textarea, select {
-    width: 100%; 
-    padding: 10px; 
-    margin-bottom: 15px; 
-    border-radius: 8px;
-    border: 1px solid #ccc; 
-    font-size: 16px; 
-    box-sizing: border-box;
-    background: white;
-}
-
-textarea { 
-    min-height: 100px; 
-    resize: vertical; 
-}
-
-button {
-    width: 100%; 
-    padding: 12px; 
-    margin: 6px 0; 
-    border: none; 
-    border-radius: 8px;
-    font-size: 15px; 
-    font-weight: bold; 
-    cursor: pointer; 
-    color: white;
-}
-
-.print-btn { background: #2e7d32; }
-.save-btn { background: #1976d2; }
-
-.scale-bar { display: flex; gap: 4px; margin-bottom: 20px; }
-
-.scale-bar div {
-    flex: 1; 
-    padding: 8px; 
-    text-align: center; 
-    color: white; 
-    font-weight: bold;
-    cursor: pointer; 
-    border-radius: 6px;
-}
-
-.scale-bar div:nth-child(-n+3) { background: #d32f2f; }
-.scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color: black; }
-.scale-bar div:nth-child(n+7) { background: #2e7d32; }
-
-.selected { outline: 3px solid #000; }
-
-.pupil-bar { display: flex; gap: 8px; margin-bottom: 10px; }
-.pupil-bar select { flex: 3; }
-.pupil-bar button { flex: 1; }
-
-.total-hours { 
-    font-weight: bold; 
-    font-size: 1.1em; 
-    margin: 8px 0; 
-    text-align: center; 
-}
-
-.section-label {
-    margin-top: 14px;
-    margin-bottom: 4px;
-    font-weight: bold;
-}
-
-.print-section {
-    margin-bottom: 8px;
-}
-
-/* PRINT SETTINGS */
-@media print {
-
-  body {
-    background: white !important;
-    font-size: 13px !important;
-    line-height: 1.6 !important;
-  }
-
-  button { display: none !important; }
-
-  .print-section {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  .section-label {
-    page-break-after: avoid !important;
-    margin-top: 10px !important;
-  }
-
-  textarea {
-    font-size: 13px !important;
-    line-height: 1.65 !important;
-    height: auto !important;
-    overflow: hidden !important;
-    padding: 10px 10px 16px 10px !important;
-    margin-bottom: 10px !important;
-    border: 1px solid #999 !important;
-    border-radius: 6px !important;
-  }
-
-  @page {
-    size: A4;
-    margin: 10mm;
-  }
-}
-</style>
-</head>
-<body>
-
-<h1>LEARNER REFLECTIVE LOG</h1>
-<p><strong>Instructor:</strong> Alex Heirani</p>
-<p><strong>Date:</strong> <span id="date"></span></p>
-
-<div class="section-label">Student Name</div>
-<div class="pupil-bar">
-    <select id="pupilSelect"></select>
-    <button onclick="addPupil()">Add</button>
-    <button onclick="deletePupil()">Delete</button>
-</div>
-
-<p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
-
-<button class="save-btn" onclick="saveLesson()">Save Lesson</button>
-<button class="print-btn" onclick="window.print()">Download PDF</button>
-
-<div class="print-section">
-    <div class="section-label">Lesson Duration (hours)</div>
-    <input type="number" step="0.25" id="lessonHours" value="2">
-</div>
-
-<div class="print-section">
-    <div class="section-label">Lesson Goal</div>
-    <textarea id="goal"></textarea>
-</div>
-
-<div class="print-section">
-    <div class="section-label">Initial Self Rating (1–10)</div>
-    <div class="scale-bar" id="scale1"></div>
-</div>
-
-<div class="print-section">
-    <div class="section-label">What went well?</div>
-    <textarea id="well"></textarea>
-</div>
-
-<div class="print-section">
-    <div class="section-label">What didn’t go well?</div>
-    <textarea id="improve"></textarea>
-</div>
-
-<div class="print-section">
-    <div class="section-label">Did you achieve the goal?</div>
-    <textarea id="achieved"></textarea>
-</div>
-
-<div class="print-section">
-    <div class="section-label">Final Self Rating (1–10)</div>
-    <div class="scale-bar" id="scale2"></div>
-</div>
-
-<div class="print-section">
-    <div class="section-label">Additional Comments</div>
-    <textarea id="additional"></textarea>
-</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
-/* CREATE SCALES */
+/* SCALE CREATION */
 function createScale(id) {
     const container = document.getElementById(id);
     for (let i = 1; i <= 10; i++) {
@@ -228,45 +45,87 @@ function getScaleValue(id) {
     return selected ? selected.innerText : "";
 }
 
-/* DOWNLOAD TXT FILE */
-function downloadLessonFile(pupilName, lessonData) {
-    const date = lessonData.date.replaceAll("/", "-");
+/* CUMULATIVE TXT DOWNLOAD */
+function downloadCumulativeFile(pupil) {
+    let content = `LEARNER REFLECTIVE LOG\nInstructor: Alex Heirani\nStudent: ${pupil.name}\n\n`;
 
-    const content = 
-`LEARNER REFLECTIVE LOG
-Instructor: Alex Heirani
-Student: ${pupilName}
-Date: ${lessonData.date}
-
-Lesson Duration: ${lessonData.hours} hours
+    pupil.lessons.forEach((lesson, i) => {
+        content += `
+=============================
+Lesson ${i + 1}
+Date: ${lesson.date}
+Duration: ${lesson.hours} hours
 
 Lesson Goal:
-${lessonData.goal}
+${lesson.goal}
 
-Initial Self Rating: ${lessonData.scale1}
+Initial Rating: ${lesson.scale1}
 
 What went well:
-${lessonData.well}
+${lesson.well}
 
 What didn’t go well:
-${lessonData.improve}
+${lesson.improve}
 
 Did you achieve the goal?
-${lessonData.achieved}
+${lesson.achieved}
 
-Final Self Rating: ${lessonData.scale2}
+Final Rating: ${lesson.scale2}
 
 Additional Comments:
-${lessonData.additional}
+${lesson.additional}
+=============================
 `;
+    });
 
     const blob = new Blob([content], { type: "text/plain" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${pupilName.replace(/\s+/g, "_")}_${date}.txt`;
+    link.download = `${pupil.name.replace(/\s+/g, "_")}_ALL_LESSONS.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+/* PROFESSIONAL PDF DOWNLOAD */
+async function downloadPDF(pupilName, lesson) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    let y = 20;
+
+    doc.setFontSize(16);
+    doc.text("LEARNER REFLECTIVE LOG", 105, y, { align: "center" });
+
+    y += 10;
+    doc.setFontSize(12);
+    doc.text(`Instructor: Alex Heirani`, 20, y);
+    y += 6;
+    doc.text(`Student: ${pupilName}`, 20, y);
+    y += 6;
+    doc.text(`Date: ${lesson.date}`, 20, y);
+    y += 10;
+
+    function addSection(title, text) {
+        doc.setFont(undefined, "bold");
+        doc.text(title, 20, y);
+        y += 6;
+        doc.setFont(undefined, "normal");
+        const lines = doc.splitTextToSize(text || "-", 170);
+        doc.text(lines, 20, y);
+        y += lines.length * 6 + 4;
+    }
+
+    addSection("Lesson Duration:", lesson.hours + " hours");
+    addSection("Lesson Goal:", lesson.goal);
+    addSection("Initial Self Rating:", lesson.scale1);
+    addSection("What went well:", lesson.well);
+    addSection("What didn’t go well:", lesson.improve);
+    addSection("Did you achieve the goal?", lesson.achieved);
+    addSection("Final Self Rating:", lesson.scale2);
+    addSection("Additional Comments:", lesson.additional);
+
+    doc.save(`${pupilName.replace(/\s+/g, "_")}_${lesson.date.replaceAll("/", "-")}.pdf`);
 }
 
 /* SAVE LESSON */
@@ -296,11 +155,13 @@ function saveLesson() {
     localStorage.setItem("pupils", JSON.stringify(pupils));
     updateHours();
 
-    downloadLessonFile(pupils[index].name, lesson);
+    downloadCumulativeFile(pupils[index]);
+    downloadPDF(pupils[index].name, lesson);
 
-    alert("Lesson saved and downloaded.");
+    alert("Lesson saved. TXT + PDF downloaded.");
 }
 
+/* ADD / DELETE */
 function addPupil() {
     const name = prompt("Enter pupil name:");
     if (!name) return;
@@ -319,6 +180,3 @@ function deletePupil() {
 
 pupilSelect.addEventListener("change", updateHours);
 </script>
-
-</body>
-</html>
