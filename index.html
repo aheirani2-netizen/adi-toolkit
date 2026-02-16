@@ -18,7 +18,7 @@ h1 { text-align: center; margin-bottom: 20px; }
 
 input, textarea, select {
     width: 100%; 
-    padding: 10px; 
+    padding: 16px; 
     margin-bottom: 15px; 
     border-radius: 8px;
     border: 1px solid #ccc; 
@@ -85,6 +85,43 @@ button {
 .print-section {
     margin-bottom: 8px;
 }
+
+@media print {
+
+  body {
+    background: white !important;
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+  }
+
+  button { display: none !important; }
+
+  .print-section {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .section-label {
+    page-break-after: avoid !important;
+    margin-top: 10px !important;
+  }
+
+  textarea {
+    font-size: 13px !important;
+    line-height: 1.65 !important;
+    height: auto !important;
+    overflow: hidden !important;
+    padding: 16px !important;
+    margin-bottom: 10px !important;
+    border: 1px solid #999 !important;
+    border-radius: 6px !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+}
 </style>
 </head>
 <body>
@@ -102,7 +139,8 @@ button {
 
 <p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
 
-<button class="print-btn" onclick="saveAndEmail()">Send Email</button>
+<button class="save-btn" onclick="saveLesson()">Save Lesson</button>
+<button class="print-btn" onclick="window.print()">Download / Print PDF</button>
 
 <div class="print-section">
     <div class="section-label">Lesson Duration (hours)</div>
@@ -190,12 +228,52 @@ function getScaleValue(id) {
     return selected ? selected.innerText : "";
 }
 
-/* SAVE + EMAIL */
-function saveAndEmail() {
+/* DOWNLOAD TXT FILE */
+function downloadLessonFile(pupilName, lessonData) {
+    const date = lessonData.date.replaceAll("/", "-");
+
+    const content = 
+`LEARNER REFLECTIVE LOG
+Instructor: Alex Heirani
+Student: ${pupilName}
+Date: ${lessonData.date}
+
+Lesson Duration: ${lessonData.hours} hours
+
+Lesson Goal:
+${lessonData.goal}
+
+Initial Self Rating: ${lessonData.scale1}
+
+What went well:
+${lessonData.well}
+
+What didn’t go well:
+${lessonData.improve}
+
+Did you achieve the goal?
+${lessonData.achieved}
+
+Final Self Rating: ${lessonData.scale2}
+
+Additional Comments:
+${lessonData.additional}
+`;
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${pupilName.replace(/\s+/g, "_")}_${date}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+/* SAVE LESSON */
+function saveLesson() {
     const index = pupilSelect.value;
     if (index === "") return alert("Select a pupil.");
 
-    const pupil = pupils[index];
     const hours = parseFloat(lessonHours.value) || 0;
 
     const lesson = {
@@ -210,58 +288,22 @@ function saveAndEmail() {
         scale2: getScaleValue("scale2")
     };
 
-    if (!pupil.lessons) pupil.lessons = [];
-    pupil.lessons.push(lesson);
-    pupil.totalHours = (pupil.totalHours || 0) + hours;
+    if (!pupils[index].lessons) pupils[index].lessons = [];
+    pupils[index].lessons.push(lesson);
+    pupils[index].totalHours = (pupils[index].totalHours || 0) + hours;
 
     localStorage.setItem("pupils", JSON.stringify(pupils));
     updateHours();
 
-    const subject = `Reflective Log - ${pupil.name} - ${lesson.date}`;
+    downloadLessonFile(pupils[index].name, lesson);
 
-    const body =
-`LEARNER REFLECTIVE LOG
-
-Instructor: Alex Heirani
-Student: ${pupil.name}
-Date: ${lesson.date}
-
-Lesson Duration: ${lesson.hours} hours
-
-Lesson Goal:
-${lesson.goal}
-
-Initial Self Rating: ${lesson.scale1}
-
-What went well:
-${lesson.well}
-
-What didn’t go well:
-${lesson.improve}
-
-Did you achieve the goal?
-${lesson.achieved}
-
-Final Self Rating: ${lesson.scale2}
-
-Additional Comments:
-${lesson.additional}
-`;
-
-    const mailtoLink =
-        `mailto:${pupil.email || ""}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    window.location.href = mailtoLink;
+    alert("Lesson saved and downloaded.");
 }
 
-/* ADD PUPIL WITH EMAIL */
 function addPupil() {
     const name = prompt("Enter pupil name:");
     if (!name) return;
-
-    const email = prompt("Enter pupil email (optional):") || "";
-
-    pupils.push({ name, email, totalHours: 0, lessons: [] });
+    pupils.push({ name, totalHours: 0, lessons: [] });
     localStorage.setItem("pupils", JSON.stringify(pupils));
     refreshPupils();
 }
