@@ -44,8 +44,7 @@ button {
     color: white;
 }
 
-.print-btn { background: #2e7d32; }
-.save-btn { background: #1976d2; }
+.email-btn { background: #2e7d32; }
 
 .scale-bar { display: flex; gap: 4px; margin-bottom: 20px; }
 
@@ -102,8 +101,7 @@ button {
 
 <p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
 
-<button class="save-btn" onclick="saveLesson()">Save Lesson</button>
-<button class="print-btn" onclick="emailLesson()">Send Email</button>
+<button class="email-btn" onclick="saveAndEmail()">Save & Send Email</button>
 
 <div class="print-section">
     <div class="section-label">Lesson Duration (hours)</div>
@@ -191,15 +189,20 @@ function getScaleValue(id) {
     return selected ? selected.innerText : "";
 }
 
-/* SAVE LESSON */
-function saveLesson() {
+/* SAVE + EMAIL (Safari Safe) */
+function saveAndEmail() {
     const index = pupilSelect.value;
-    if (index === "") return alert("Select a pupil.");
+    if (index === "") {
+        alert("Select a pupil.");
+        return;
+    }
 
+    const pupil = pupils[index];
+    const today = new Date().toLocaleDateString();
     const hours = parseFloat(lessonHours.value) || 0;
 
     const lesson = {
-        date: new Date().toLocaleDateString(),
+        date: today,
         hours,
         goal: goal.value,
         well: well.value,
@@ -210,58 +213,52 @@ function saveLesson() {
         scale2: getScaleValue("scale2")
     };
 
-    if (!pupils[index].lessons) pupils[index].lessons = [];
-    pupils[index].lessons.push(lesson);
-    pupils[index].totalHours = (pupils[index].totalHours || 0) + hours;
+    if (!pupil.lessons) pupil.lessons = [];
+    pupil.lessons.push(lesson);
+    pupil.totalHours = (pupil.totalHours || 0) + hours;
 
     localStorage.setItem("pupils", JSON.stringify(pupils));
     updateHours();
 
-    alert("Lesson saved.");
-}
-
-/* SEND EMAIL */
-function emailLesson() {
-    const index = pupilSelect.value;
-    if (index === "") return alert("Select a pupil.");
-
-    const pupil = pupils[index];
-
-    const subject = `Reflective Log - ${pupil.name} - ${new Date().toLocaleDateString()}`;
+    const subject = `Reflective Log - ${pupil.name} - ${today}`;
 
     const body =
 `LEARNER REFLECTIVE LOG
 
 Instructor: Alex Heirani
 Student: ${pupil.name}
-Date: ${new Date().toLocaleDateString()}
+Date: ${today}
 
-Lesson Duration: ${lessonHours.value} hours
+Lesson Duration: ${lesson.hours} hours
 
 Lesson Goal:
-${goal.value}
+${lesson.goal}
 
-Initial Self Rating: ${getScaleValue("scale1")}
+Initial Self Rating: ${lesson.scale1}
 
 What went well:
-${well.value}
+${lesson.well}
 
 What didn’t go well:
-${improve.value}
+${lesson.improve}
 
 Did you achieve the goal?
-${achieved.value}
+${lesson.achieved}
 
-Final Self Rating: ${getScaleValue("scale2")}
+Final Self Rating: ${lesson.scale2}
 
 Additional Comments:
-${additional.value}
+${lesson.additional}
 `;
 
-    const mailtoLink =
-        `mailto:${pupil.email || ""}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const email = pupil.email || "";
 
-    window.location.href = mailtoLink;
+    const mailto =
+        "mailto:" + email +
+        "?subject=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body);
+
+    window.location.href = mailto;
 }
 
 /* ADD PUPIL WITH EMAIL */
