@@ -14,6 +14,7 @@ body {
     background: #f4f4f4; 
     line-height: 1.5;
 }
+
 h1 { text-align: center; margin-bottom: 20px; }
 
 input, textarea, select {
@@ -27,10 +28,7 @@ input, textarea, select {
     background: white;
 }
 
-textarea { 
-    min-height: 100px; 
-    resize: vertical; 
-}
+textarea { min-height: 100px; resize: vertical; }
 
 button {
     width: 100%; 
@@ -44,36 +42,8 @@ button {
     color: white;
 }
 
+.save-btn { background: #1976d2; }
 .email-btn { background: #2e7d32; }
-
-.scale-bar { display: flex; gap: 4px; margin-bottom: 20px; }
-
-.scale-bar div {
-    flex: 1; 
-    padding: 8px; 
-    text-align: center; 
-    color: white; 
-    font-weight: bold;
-    cursor: pointer; 
-    border-radius: 6px;
-}
-
-.scale-bar div:nth-child(-n+3) { background: #d32f2f; }
-.scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color: black; }
-.scale-bar div:nth-child(n+7) { background: #2e7d32; }
-
-.selected { outline: 3px solid #000; }
-
-.pupil-bar { display: flex; gap: 8px; margin-bottom: 10px; }
-.pupil-bar select { flex: 3; }
-.pupil-bar button { flex: 1; }
-
-.total-hours { 
-    font-weight: bold; 
-    font-size: 1.1em; 
-    margin: 8px 0; 
-    text-align: center; 
-}
 
 .section-label {
     margin-top: 14px;
@@ -81,8 +51,29 @@ button {
     font-weight: bold;
 }
 
-.print-section {
-    margin-bottom: 8px;
+.scale-bar { display: flex; gap: 4px; margin-bottom: 20px; }
+.scale-bar div {
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+}
+.scale-bar div:nth-child(-n+3){background:#d32f2f;}
+.scale-bar div:nth-child(n+4):nth-child(-n+6){background:#fbc02d;color:black;}
+.scale-bar div:nth-child(n+7){background:#2e7d32;}
+.selected{outline:3px solid black;}
+
+.pupil-bar{display:flex;gap:8px;margin-bottom:10px;}
+.pupil-bar select{flex:3;}
+.pupil-bar button{flex:1;}
+
+.total-hours{
+    font-weight:bold;
+    text-align:center;
+    margin:10px 0;
 }
 </style>
 </head>
@@ -92,68 +83,52 @@ button {
 <p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
 
-<div class="section-label">Student Name</div>
+<div class="section-label">Student</div>
 <div class="pupil-bar">
-    <select id="pupilSelect"></select>
-    <button onclick="addPupil()">Add</button>
-    <button onclick="deletePupil()">Delete</button>
+<select id="pupilSelect"></select>
+<button onclick="addPupil()">Add</button>
+<button onclick="deletePupil()">Delete</button>
 </div>
 
 <p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
 
-<button class="email-btn" onclick="saveAndEmail()">Save & Send Email</button>
+<button class="save-btn" onclick="saveLesson()">Save Lesson</button>
+<button class="email-btn" onclick="generatePDFandEmail()">Generate PDF & Email</button>
 
-<div class="print-section">
-    <div class="section-label">Lesson Duration (hours)</div>
-    <input type="number" step="0.25" id="lessonHours" value="2">
-</div>
+<div class="section-label">Lesson Duration (hours)</div>
+<input type="number" step="0.25" id="lessonHours" value="2">
 
-<div class="print-section">
-    <div class="section-label">Lesson Goal</div>
-    <textarea id="goal"></textarea>
-</div>
+<div class="section-label">Lesson Goal</div>
+<textarea id="goal"></textarea>
 
-<div class="print-section">
-    <div class="section-label">Initial Self Rating (1–10)</div>
-    <div class="scale-bar" id="scale1"></div>
-</div>
+<div class="section-label">Initial Self Rating</div>
+<div class="scale-bar" id="scale1"></div>
 
-<div class="print-section">
-    <div class="section-label">What went well?</div>
-    <textarea id="well"></textarea>
-</div>
+<div class="section-label">What went well?</div>
+<textarea id="well"></textarea>
 
-<div class="print-section">
-    <div class="section-label">What didn’t go well?</div>
-    <textarea id="improve"></textarea>
-</div>
+<div class="section-label">What didn’t go well?</div>
+<textarea id="improve"></textarea>
 
-<div class="print-section">
-    <div class="section-label">Did you achieve the goal?</div>
-    <textarea id="achieved"></textarea>
-</div>
+<div class="section-label">Did you achieve the goal?</div>
+<textarea id="achieved"></textarea>
 
-<div class="print-section">
-    <div class="section-label">Final Self Rating (1–10)</div>
-    <div class="scale-bar" id="scale2"></div>
-</div>
+<div class="section-label">Final Self Rating</div>
+<div class="scale-bar" id="scale2"></div>
 
-<div class="print-section">
-    <div class="section-label">Additional Comments</div>
-    <textarea id="additional"></textarea>
-</div>
+<div class="section-label">Additional Comments</div>
+<textarea id="additional"></textarea>
 
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
-/* CREATE SCALES */
-function createScale(id) {
-    const container = document.getElementById(id);
-    for (let i = 1; i <= 10; i++) {
-        const div = document.createElement("div");
-        div.innerText = i;
-        div.onclick = () => {
-            [...container.children].forEach(c => c.classList.remove("selected"));
+function createScale(id){
+    const container=document.getElementById(id);
+    for(let i=1;i<=10;i++){
+        const div=document.createElement("div");
+        div.innerText=i;
+        div.onclick=()=>{
+            [...container.children].forEach(c=>c.classList.remove("selected"));
             div.classList.add("selected");
         };
         container.appendChild(div);
@@ -162,126 +137,74 @@ function createScale(id) {
 createScale("scale1");
 createScale("scale2");
 
-/* STORAGE */
-let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
-const pupilSelect = document.getElementById("pupilSelect");
-const totalHours = document.getElementById("totalHours");
+let pupils=JSON.parse(localStorage.getItem("pupils")||"[]");
+const pupilSelect=document.getElementById("pupilSelect");
 
-function refreshPupils() {
-    pupilSelect.innerHTML = "";
-    pupils.forEach((p, i) => {
-        const option = document.createElement("option");
-        option.value = i;
-        option.textContent = p.name;
+function refreshPupils(){
+    pupilSelect.innerHTML="";
+    pupils.forEach((p,i)=>{
+        const option=document.createElement("option");
+        option.value=i;
+        option.textContent=p.name;
         pupilSelect.appendChild(option);
     });
     updateHours();
 }
 refreshPupils();
 
-function updateHours() {
-    const index = pupilSelect.value;
-    totalHours.innerText = (pupils[index] && pupils[index].totalHours) || 0;
+function updateHours(){
+    const index=pupilSelect.value;
+    totalHours.innerText=(pupils[index]&&pupils[index].totalHours)||0;
 }
 
-function getScaleValue(id) {
-    const selected = document.querySelector(`#${id} .selected`);
-    return selected ? selected.innerText : "";
+function getScaleValue(id){
+    const selected=document.querySelector(`#${id} .selected`);
+    return selected?selected.innerText:"";
 }
 
-/* SAVE + EMAIL (Safari Safe) */
-function saveAndEmail() {
-    const index = pupilSelect.value;
-    if (index === "") {
-        alert("Select a pupil.");
-        return;
-    }
+function saveLesson(){
+    const index=pupilSelect.value;
+    if(index==="") return alert("Select pupil.");
+    const hours=parseFloat(lessonHours.value)||0;
 
-    const pupil = pupils[index];
-    const today = new Date().toLocaleDateString();
-    const hours = parseFloat(lessonHours.value) || 0;
-
-    const lesson = {
-        date: today,
-        hours,
-        goal: goal.value,
-        well: well.value,
-        improve: improve.value,
-        achieved: achieved.value,
-        additional: additional.value,
-        scale1: getScaleValue("scale1"),
-        scale2: getScaleValue("scale2")
-    };
-
-    if (!pupil.lessons) pupil.lessons = [];
-    pupil.lessons.push(lesson);
-    pupil.totalHours = (pupil.totalHours || 0) + hours;
-
-    localStorage.setItem("pupils", JSON.stringify(pupils));
+    pupils[index].totalHours=(pupils[index].totalHours||0)+hours;
+    localStorage.setItem("pupils",JSON.stringify(pupils));
     updateHours();
-
-    const subject = `Reflective Log - ${pupil.name} - ${today}`;
-
-    const body =
-`LEARNER REFLECTIVE LOG
-
-Instructor: Alex Heirani
-Student: ${pupil.name}
-Date: ${today}
-
-Lesson Duration: ${lesson.hours} hours
-
-Lesson Goal:
-${lesson.goal}
-
-Initial Self Rating: ${lesson.scale1}
-
-What went well:
-${lesson.well}
-
-What didn’t go well:
-${lesson.improve}
-
-Did you achieve the goal?
-${lesson.achieved}
-
-Final Self Rating: ${lesson.scale2}
-
-Additional Comments:
-${lesson.additional}
-`;
-
-    const email = pupil.email || "";
-
-    const mailto =
-        "mailto:" + email +
-        "?subject=" + encodeURIComponent(subject) +
-        "&body=" + encodeURIComponent(body);
-
-    window.location.href = mailto;
+    alert("Lesson saved.");
 }
 
-/* ADD PUPIL WITH EMAIL */
-function addPupil() {
-    const name = prompt("Enter pupil name:");
-    if (!name) return;
-
-    const email = prompt("Enter pupil email address:") || "";
-
-    pupils.push({ name, email, totalHours: 0, lessons: [] });
-    localStorage.setItem("pupils", JSON.stringify(pupils));
+function addPupil(){
+    const name=prompt("Enter pupil name:");
+    if(!name)return;
+    const email=prompt("Enter pupil email:");
+    pupils.push({name,email,totalHours:0});
+    localStorage.setItem("pupils",JSON.stringify(pupils));
     refreshPupils();
 }
 
-function deletePupil() {
-    const index = pupilSelect.value;
-    if (index === "") return;
-    pupils.splice(index, 1);
-    localStorage.setItem("pupils", JSON.stringify(pupils));
+function deletePupil(){
+    const index=pupilSelect.value;
+    if(index==="")return;
+    pupils.splice(index,1);
+    localStorage.setItem("pupils",JSON.stringify(pupils));
     refreshPupils();
 }
 
-pupilSelect.addEventListener("change", updateHours);
+function generatePDFandEmail(){
+    const index=pupilSelect.value;
+    if(index==="") return alert("Select pupil.");
+
+    const pupil=pupils[index];
+    if(!pupil.email) return alert("No email saved.");
+
+    window.print(); // Safari native PDF generation
+
+    setTimeout(()=>{
+        window.location.href=`mailto:${pupil.email}?subject=Driving Lesson Reflection`;
+    },1000);
+}
+
+pupilSelect.addEventListener("change",updateHours);
 </script>
 
 </body>
