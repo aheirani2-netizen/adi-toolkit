@@ -82,9 +82,24 @@ button {
     font-weight: bold;
 }
 
+.print-page-break {
+    margin-top: 20px;
+}
+
+/* PRINT SETTINGS */
 @media print {
-  body { background: white !important; }
-  button { display: none !important; }
+  body { 
+    background: white !important; 
+  }
+
+  button { 
+    display: none !important; 
+  }
+
+  .print-page-break {
+      page-break-before: always;
+      break-before: page;
+  }
 }
 </style>
 </head>
@@ -137,8 +152,10 @@ button {
 <p>1 being I know nothing about the subject and 10 I’m test ready.</p>
 <div class="scale-bar" id="scale2"></div>
 
-<div class="section-label">What moved you from a ___ to a ___ today?</div>
-<textarea id="progressReason"></textarea>
+<div class="print-page-break">
+    <div class="section-label">What moved you from a ___ to a ___ today?</div>
+    <textarea id="progressReason"></textarea>
+</div>
 
 <div class="section-label">Based on today, what should we build on next lesson?</div>
 <textarea id="nextLesson"></textarea>
