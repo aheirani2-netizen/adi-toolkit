@@ -28,7 +28,7 @@ input, textarea, select {
 }
 
 textarea { 
-    min-height: 100px; 
+    min-height: 90px; 
     resize: vertical; 
 }
 
@@ -47,7 +47,7 @@ button {
 .print-btn { background: #2e7d32; }
 .save-btn { background: #1976d2; }
 
-.scale-bar { display: flex; gap: 4px; margin-bottom: 20px; }
+.scale-bar { display: flex; gap: 4px; margin-bottom: 10px; }
 
 .scale-bar div {
     flex: 1; 
@@ -82,46 +82,9 @@ button {
     font-weight: bold;
 }
 
-.print-section {
-    margin-bottom: 8px;
-}
-
-/* PRINT SETTINGS */
 @media print {
-
-  body {
-    background: white !important;
-    font-size: 13px !important;
-    line-height: 1.6 !important;
-  }
-
+  body { background: white !important; }
   button { display: none !important; }
-
-  .print-section {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  .section-label {
-    page-break-after: avoid !important;
-    margin-top: 10px !important;
-  }
-
-  textarea {
-    font-size: 13px !important;
-    line-height: 1.65 !important;
-    height: auto !important;
-    overflow: hidden !important;
-    padding: 10px 10px 16px 10px !important;
-    margin-bottom: 10px !important;
-    border: 1px solid #999 !important;
-    border-radius: 6px !important;
-  }
-
-  @page {
-    size: A4;
-    margin: 10mm;
-  }
 }
 </style>
 </head>
@@ -143,50 +106,46 @@ button {
 <button class="save-btn" onclick="saveLesson()">Save Lesson</button>
 <button class="print-btn" onclick="window.print()">Download PDF</button>
 
-<div class="print-section">
-    <div class="section-label">Lesson Duration (hours)</div>
-    <input type="number" step="0.25" id="lessonHours" value="2">
-</div>
+<div class="section-label">Lesson Duration (hours)</div>
+<input type="number" step="0.25" id="lessonHours" value="2">
 
-<div class="print-section">
-    <div class="section-label">Lesson Goal</div>
-    <textarea id="goal"></textarea>
-</div>
+<div class="section-label">Lesson Goal</div>
+<textarea id="goal" placeholder="What would you like to improve today? What still feels inconsistent?"></textarea>
 
-<div class="print-section">
-    <div class="section-label">Initial Self Rating (1–10)</div>
-    <div class="scale-bar" id="scale1"></div>
-</div>
+<div class="section-label">Initial Self Rating (1–10)</div>
+<p>On a scale of 1–10, where 1 means you’d need full support and 10 means you could handle this independently on test — where are you?</p>
+<div class="scale-bar" id="scale1"></div>
 
-<div class="print-section">
-    <div class="section-label">What went well?</div>
-    <textarea id="well"></textarea>
-</div>
+<div class="section-label">Why that number and not lower?</div>
+<textarea id="whyNotLower"></textarea>
 
-<div class="print-section">
-    <div class="section-label">What didn’t go well?</div>
-    <textarea id="improve"></textarea>
-</div>
+<div class="section-label">How would this lesson look to be a success?</div>
+<textarea id="successCriteria" placeholder="Eg. So if by the end you can approach calmly, judge gaps confidently and not feel rushed — would that be success?"></textarea>
 
-<div class="print-section">
-    <div class="section-label">Did you achieve the goal?</div>
-    <textarea id="achieved"></textarea>
-</div>
+<div class="section-label">Support Level</div>
+<textarea id="support" placeholder="How would you like me to support you today — full guidance, light prompts, or mostly independent? And if I see a safety issue, I’ll step in — is that fair?"></textarea>
 
-<div class="print-section">
-    <div class="section-label">Final Self Rating (1–10)</div>
-    <div class="scale-bar" id="scale2"></div>
-</div>
+<hr>
 
-<div class="print-section">
-    <div class="section-label">Additional Comments</div>
-    <textarea id="additional"></textarea>
-</div>
+<div class="section-label">What’s one positive you can take from today’s lesson?</div>
+<textarea id="positive"></textarea>
+
+<div class="section-label">What could we improve on?</div>
+<textarea id="improve"></textarea>
+
+<div class="section-label">Final Self Rating (1–10)</div>
+<p>1 being I know nothing about the subject and 10 I’m test ready.</p>
+<div class="scale-bar" id="scale2"></div>
+
+<div class="section-label">What moved you from a ___ to a ___ today?</div>
+<textarea id="progressReason"></textarea>
+
+<div class="section-label">Based on today, what should we build on next lesson?</div>
+<textarea id="nextLesson"></textarea>
 
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
-/* CREATE SCALES */
 function createScale(id) {
     const container = document.getElementById(id);
     for (let i = 1; i <= 10; i++) {
@@ -202,7 +161,6 @@ function createScale(id) {
 createScale("scale1");
 createScale("scale2");
 
-/* STORAGE */
 let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
 const pupilSelect = document.getElementById("pupilSelect");
 
@@ -228,48 +186,6 @@ function getScaleValue(id) {
     return selected ? selected.innerText : "";
 }
 
-/* DOWNLOAD TXT FILE */
-function downloadLessonFile(pupilName, lessonData) {
-    const date = lessonData.date.replaceAll("/", "-");
-
-    const content = 
-`LEARNER REFLECTIVE LOG
-Instructor: Alex Heirani
-Student: ${pupilName}
-Date: ${lessonData.date}
-
-Lesson Duration: ${lessonData.hours} hours
-
-Lesson Goal:
-${lessonData.goal}
-
-Initial Self Rating: ${lessonData.scale1}
-
-What went well:
-${lessonData.well}
-
-What didn’t go well:
-${lessonData.improve}
-
-Did you achieve the goal?
-${lessonData.achieved}
-
-Final Self Rating: ${lessonData.scale2}
-
-Additional Comments:
-${lessonData.additional}
-`;
-
-    const blob = new Blob([content], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${pupilName.replace(/\s+/g, "_")}_${date}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-/* SAVE LESSON */
 function saveLesson() {
     const index = pupilSelect.value;
     if (index === "") return alert("Select a pupil.");
@@ -280,25 +196,25 @@ function saveLesson() {
         date: new Date().toLocaleDateString(),
         hours,
         goal: goal.value,
-        well: well.value,
+        whyNotLower: whyNotLower.value,
+        successCriteria: successCriteria.value,
+        support: support.value,
+        positive: positive.value,
         improve: improve.value,
-        achieved: achieved.value,
-        additional: additional.value,
+        progressReason: progressReason.value,
+        nextLesson: nextLesson.value,
         scale1: getScaleValue("scale1"),
         scale2: getScaleValue("scale2")
     };
 
     if (!pupils[index].lessons) pupils[index].lessons = [];
     pupils[index].lessons.push(lesson);
-
     pupils[index].totalHours = (pupils[index].totalHours || 0) + hours;
 
     localStorage.setItem("pupils", JSON.stringify(pupils));
     updateHours();
 
-    downloadLessonFile(pupils[index].name, lesson);
-
-    alert("Lesson saved and downloaded.");
+    alert("Lesson saved.");
 }
 
 function addPupil() {
