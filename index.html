@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ADI Reflective Log</title>
-<p style="text-align:center; font-style:italic; margin-bottom:20px;">
-This log helps track your independence and progress toward test standard.
-</p>
+
 <style>
 body { 
     font-family: Arial, sans-serif; 
@@ -16,7 +14,20 @@ body {
     background: #f4f4f4; 
     line-height: 1.5;
 }
-h1 { text-align: center; margin-bottom: 20px; }
+
+h1 { text-align: center; margin-bottom: 5px; }
+
+.subtitle {
+    text-align: center;
+    font-style: italic;
+    margin-bottom: 25px;
+}
+
+h2 {
+    border-bottom: 2px solid #333;
+    padding-bottom: 6px;
+    margin-top: 0;
+}
 
 input, textarea, select {
     width: 100%; 
@@ -30,7 +41,7 @@ input, textarea, select {
 }
 
 textarea { 
-    min-height: 90px; 
+    min-height: 100px; 
     resize: vertical; 
 }
 
@@ -49,7 +60,7 @@ button {
 .print-btn { background: #2e7d32; }
 .save-btn { background: #1976d2; }
 
-.scale-bar { display: flex; gap: 4px; margin-bottom: 10px; }
+.scale-bar { display: flex; gap: 4px; margin-bottom: 20px; }
 
 .scale-bar div {
     flex: 1; 
@@ -67,17 +78,6 @@ button {
 
 .selected { outline: 3px solid #000; }
 
-.pupil-bar { display: flex; gap: 8px; margin-bottom: 10px; }
-.pupil-bar select { flex: 3; }
-.pupil-bar button { flex: 1; }
-
-.total-hours { 
-    font-weight: bold; 
-    font-size: 1.1em; 
-    margin: 8px 0; 
-    text-align: center; 
-}
-
 .section-label {
     margin-top: 14px;
     margin-bottom: 4px;
@@ -85,22 +85,24 @@ button {
 }
 
 .print-page-break {
-    margin-top: 20px;
+    margin-top: 40px;
 }
 
 /* PRINT SETTINGS */
 @media print {
-  body { 
-    background: white !important; 
-  }
 
-  button { 
-    display: none !important; 
-  }
+  body { background: white !important; font-size: 13px; }
+
+  button { display: none !important; }
 
   .print-page-break {
       page-break-before: always;
       break-before: page;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm;
   }
 }
 </style>
@@ -108,41 +110,46 @@ button {
 <body>
 
 <h1>LEARNER REFLECTIVE LOG</h1>
+<p class="subtitle">
+This log helps track your independence and progress toward test standard.
+</p>
+
 <p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
-
-<div class="section-label">Student Name</div>
-<div class="pupil-bar">
-    <select id="pupilSelect"></select>
-    <button onclick="addPupil()">Add</button>
-    <button onclick="deletePupil()">Delete</button>
-</div>
-
-<p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
 
 <button class="save-btn" onclick="saveLesson()">Save Lesson</button>
 <button class="print-btn" onclick="window.print()">Download PDF</button>
 
-<div class="section-label">Lesson Duration (hours)</div>
-<input type="number" step="0.25" id="lessonHours" value="2">
+<!-- PAGE 1 -->
+<h2>Lesson Planning & Development</h2>
 
 <div class="section-label">Lesson Goal</div>
-<textarea id="goal" placeholder="What would you like to improve today? What still feels inconsistent?"></textarea>
+<textarea id="goal" placeholder="What would you like to improve today? / What still feels inconsistent?"></textarea>
 
-<div class="section-label">Initial Self Rating (1–10)</div>
-<p>On a scale of 1–10, where 1 means you’d need full support and 10 means you could handle this independently on test — where are you?</p>
+<div class="section-label">
+On a scale of 1–10, 1 being I know nothing about the subject and 10 being I know it all and I’m test ready — where are you?
+</div>
 <div class="scale-bar" id="scale1"></div>
 
 <div class="section-label">Why that number and not lower?</div>
-<textarea id="whyNotLower"></textarea>
+<textarea id="whyNumber"></textarea>
 
 <div class="section-label">How would this lesson look to be a success?</div>
-<textarea id="successCriteria" placeholder="Eg. So if by the end you can approach calmly, judge gaps confidently and not feel rushed — would that be success?"></textarea>
+<textarea id="successLook"></textarea>
 
-<div class="section-label">Support Level</div>
-<textarea id="support" placeholder="How would you like me to support you today — full guidance, light prompts, or mostly independent? And if I see a safety issue, I’ll step in — is that fair?"></textarea>
+<div class="section-label">
+How would you like me to support you today — full guidance, light prompts, or mostly independent?
+</div>
+<select id="supportLevel">
+    <option value="">Select support level</option>
+    <option>Full guidance</option>
+    <option>Light prompts</option>
+    <option>Mostly independent</option>
+</select>
 
-<hr>
+<p style="font-size: 14px; font-style: italic;">
+If I see a safety issue, I will step in — is that fair?
+</p>
 
 <div class="section-label">What’s one positive you can take from today’s lesson?</div>
 <textarea id="positive"></textarea>
@@ -150,17 +157,33 @@ button {
 <div class="section-label">What could we improve on?</div>
 <textarea id="improve"></textarea>
 
-<div class="section-label">Final Self Rating (1–10)</div>
-<p>1 being I know nothing about the subject and 10 I’m test ready.</p>
+<div class="section-label">
+On a scale of 1–10, 1 being I know nothing about the subject and 10 being I know it all and I’m test ready — where are you now?
+</div>
 <div class="scale-bar" id="scale2"></div>
 
+<!-- PAGE 2 -->
 <div class="print-page-break">
-    <div class="section-label">What moved you from a ___ to a ___ today?</div>
-    <textarea id="progressReason"></textarea>
-</div>
+
+<h2>Reflective Review & Progression</h2>
+<p><em>Reflecting on independence and movement toward test standard.</em></p>
+
+<div class="section-label">What moved you from a ___ to a ___ today?</div>
+<textarea id="progressReason" style="min-height:140px;"></textarea>
+
+<div class="section-label">Test Readiness Level Today</div>
+<select id="testReadiness">
+    <option value="">Select level</option>
+    <option>Emerging</option>
+    <option>Developing</option>
+    <option>Nearly Test Standard</option>
+    <option>Test Standard</option>
+</select>
 
 <div class="section-label">Based on today, what should we build on next lesson?</div>
 <textarea id="nextLesson"></textarea>
+
+</div>
 
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
@@ -180,79 +203,9 @@ function createScale(id) {
 createScale("scale1");
 createScale("scale2");
 
-let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
-const pupilSelect = document.getElementById("pupilSelect");
-
-function refreshPupils() {
-    pupilSelect.innerHTML = "";
-    pupils.forEach((p, i) => {
-        const option = document.createElement("option");
-        option.value = i;
-        option.textContent = p.name;
-        pupilSelect.appendChild(option);
-    });
-    updateHours();
-}
-refreshPupils();
-
-function updateHours() {
-    const index = pupilSelect.value;
-    totalHours.innerText = (pupils[index] && pupils[index].totalHours) || 0;
-}
-
-function getScaleValue(id) {
-    const selected = document.querySelector(`#${id} .selected`);
-    return selected ? selected.innerText : "";
-}
-
 function saveLesson() {
-    const index = pupilSelect.value;
-    if (index === "") return alert("Select a pupil.");
-
-    const hours = parseFloat(lessonHours.value) || 0;
-
-    const lesson = {
-        date: new Date().toLocaleDateString(),
-        hours,
-        goal: goal.value,
-        whyNotLower: whyNotLower.value,
-        successCriteria: successCriteria.value,
-        support: support.value,
-        positive: positive.value,
-        improve: improve.value,
-        progressReason: progressReason.value,
-        nextLesson: nextLesson.value,
-        scale1: getScaleValue("scale1"),
-        scale2: getScaleValue("scale2")
-    };
-
-    if (!pupils[index].lessons) pupils[index].lessons = [];
-    pupils[index].lessons.push(lesson);
-    pupils[index].totalHours = (pupils[index].totalHours || 0) + hours;
-
-    localStorage.setItem("pupils", JSON.stringify(pupils));
-    updateHours();
-
-    alert("Lesson saved.");
+    alert("Save function can be reconnected if needed.");
 }
-
-function addPupil() {
-    const name = prompt("Enter pupil name:");
-    if (!name) return;
-    pupils.push({ name, totalHours: 0, lessons: [] });
-    localStorage.setItem("pupils", JSON.stringify(pupils));
-    refreshPupils();
-}
-
-function deletePupil() {
-    const index = pupilSelect.value;
-    if (index === "") return;
-    pupils.splice(index, 1);
-    localStorage.setItem("pupils", JSON.stringify(pupils));
-    refreshPupils();
-}
-
-pupilSelect.addEventListener("change", updateHours);
 </script>
 
 </body>
