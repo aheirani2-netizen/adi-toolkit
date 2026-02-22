@@ -88,11 +88,8 @@ button {
     margin-top: 40px;
 }
 
-/* PRINT SETTINGS */
 @media print {
-
   body { background: white !important; font-size: 13px; }
-
   button { display: none !important; }
 
   .print-page-break {
@@ -124,7 +121,7 @@ This log helps track your independence and progress toward test standard.
 <h2>Lesson Planning & Development</h2>
 
 <div class="section-label">Lesson Goal</div>
-<textarea id="goal" placeholder="What would you like to improve today? / What still feels inconsistent?"></textarea>
+<textarea placeholder="What would you like to improve today? / What still feels inconsistent?"></textarea>
 
 <div class="section-label">
 On a scale of 1–10, 1 being I know nothing about the subject and 10 being I know it all and I’m test ready — where are you?
@@ -132,15 +129,15 @@ On a scale of 1–10, 1 being I know nothing about the subject and 10 being I kn
 <div class="scale-bar" id="scale1"></div>
 
 <div class="section-label">Why that number and not lower?</div>
-<textarea id="whyNumber"></textarea>
+<textarea></textarea>
 
 <div class="section-label">How would this lesson look to be a success?</div>
-<textarea id="successLook"></textarea>
+<textarea></textarea>
 
 <div class="section-label">
 How would you like me to support you today — full guidance, light prompts, or mostly independent?
 </div>
-<select id="supportLevel">
+<select>
     <option value="">Select support level</option>
     <option>Full guidance</option>
     <option>Light prompts</option>
@@ -151,28 +148,28 @@ How would you like me to support you today — full guidance, light prompts, or 
 If I see a safety issue, I will step in — is that fair?
 </p>
 
-<div class="section-label">What’s one positive you can take from today’s lesson?</div>
-<textarea id="positive"></textarea>
-
-<div class="section-label">What could we improve on?</div>
-<textarea id="improve"></textarea>
-
-<div class="section-label">
-On a scale of 1–10, 1 being I know nothing about the subject and 10 being I know it all and I’m test ready — where are you now?
-</div>
-<div class="scale-bar" id="scale2"></div>
-
 <!-- PAGE 2 -->
 <div class="print-page-break">
 
 <h2>Reflective Review & Progression</h2>
 <p><em>Reflecting on independence and movement toward test standard.</em></p>
 
+<div class="section-label">What’s one positive you can take from today’s lesson?</div>
+<textarea></textarea>
+
+<div class="section-label">What could we improve on?</div>
+<textarea></textarea>
+
+<div class="section-label">
+On a scale of 1–10, 1 being I know nothing about the subject and 10 being I know it all and I’m test ready — where are you now?
+</div>
+<div class="scale-bar" id="scale2"></div>
+
 <div class="section-label">What moved you from a ___ to a ___ today?</div>
-<textarea id="progressReason" style="min-height:140px;"></textarea>
+<textarea style="min-height:140px;"></textarea>
 
 <div class="section-label">Test Readiness Level Today</div>
-<select id="testReadiness">
+<select>
     <option value="">Select level</option>
     <option>Emerging</option>
     <option>Developing</option>
@@ -181,7 +178,7 @@ On a scale of 1–10, 1 being I know nothing about the subject and 10 being I kn
 </select>
 
 <div class="section-label">Based on today, what should we build on next lesson?</div>
-<textarea id="nextLesson"></textarea>
+<textarea></textarea>
 
 </div>
 
