@@ -6,23 +6,20 @@
 <title>ADI Reflective Log</title>
 
 <style>
-body { 
-    font-family: Arial, sans-serif; 
-    background: #f4f4f4; 
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
     margin: 0;
     padding: 20px;
     max-width: 900px;
-    margin: auto;
 }
 
 h1 { text-align: center; margin-bottom: 5px; }
-
 .subtitle {
     text-align: center;
     font-style: italic;
     margin-bottom: 25px;
 }
-
 h2 {
     border-bottom: 2px solid #333;
     padding-bottom: 6px;
@@ -42,7 +39,6 @@ textarea, select, input {
     border: 1px solid #ccc;
     box-sizing: border-box;
 }
-
 textarea { min-height: 80px; resize: vertical; }
 
 button {
@@ -54,7 +50,6 @@ button {
     margin-bottom: 6px;
     color: white;
 }
-
 .save-btn { background: #1976d2; width:100%; }
 .print-btn { background: #2e7d32; width:100%; }
 
@@ -73,7 +68,6 @@ button {
     gap: 4px;
     margin-bottom: 15px;
 }
-
 .scale-bar div {
     flex: 1;
     padding: 6px;
@@ -83,60 +77,38 @@ button {
     border-radius: 4px;
     cursor: pointer;
 }
-
 .scale-bar div:nth-child(-n+3) { background: #d32f2f; }
 .scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color:black; }
 .scale-bar div:nth-child(n+7) { background: #2e7d32; }
-
 .selected { outline: 2px solid black; }
 
-/* PRINT SETTINGS */
+/* Print styling */
 @media print {
+    body { background: white; margin:0; padding:0; font-size:12px; }
+    button { display: none !important; }
 
-  body {
-    background: white;
-    margin: 0;
-    padding: 0;
-    font-size: 12px;
-  }
-
-  button {
-    display: none !important;
-  }
-
-  .page {
-    page-break-after: always;
-    break-after: page;
-    padding: 15mm;
-    box-sizing: border-box;
-  }
-
-  .page:last-child {
-    page-break-after: auto;
-    break-after: auto;
-  }
-
-  textarea {
-    min-height: 65px;
-    border: 1px solid #999;
-  }
-
-  @page {
-    size: A4;
-    margin: 0;
-  }
+    .page {
+        page-break-after: always;
+        break-after: page;
+        padding: 15mm;
+        box-sizing: border-box;
+    }
+    .page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+    }
+    textarea { min-height: 65px; border: 1px solid #999; }
+    select { border: 1px solid #999; }
+    @page { size: A4; margin: 0; }
 }
 </style>
 </head>
-
 <body>
 
+<!-- PAGE 1 -->
 <div class="page">
-
 <h1>LEARNER REFLECTIVE LOG</h1>
-<div class="subtitle">
-This log helps track your independence and progress toward test standard.
-</div>
+<div class="subtitle">This log helps track your independence and progress toward test standard.</div>
 
 <p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
@@ -148,9 +120,7 @@ This log helps track your independence and progress toward test standard.
     <button onclick="deletePupil()">Delete</button>
 </div>
 
-<div class="total-hours">
-Total Hours: <span id="totalHours">0</span>
-</div>
+<div class="total-hours">Total Hours: <span id="totalHours">0</span></div>
 
 <button class="save-btn" onclick="saveLesson()">Save Lesson</button>
 <button class="print-btn" onclick="window.print()">Download PDF</button>
@@ -158,23 +128,18 @@ Total Hours: <span id="totalHours">0</span>
 <div class="section-label">Lesson Duration (hours)</div>
 <input type="number" step="0.25" id="lessonHours" value="2">
 
-<div class="section-label">
-Lesson Goal – What would you like to improve today? What still feels inconsistent?
-</div>
+<div class="section-label">Lesson Goal – What would you like to improve today? / What still feels inconsistent?</div>
 <textarea id="goal"></textarea>
 
 <div class="section-label">
-Initial Self Rating (1–10)  
-On a scale of 1–10, 1 being I know nothing about the subject and 10 being I know it all and I’m test ready.
+Initial Self Rating (1–10) – 1 = I know nothing about the subject, 10 = I know it all and I’m test ready
 </div>
 <div class="scale-bar" id="scale1"></div>
 
 <div class="section-label">Why that number and not lower?</div>
 <textarea id="whyNumber"></textarea>
 
-<div class="section-label">
-How would this lesson look to be a success?
-</div>
+<div class="section-label">How would this lesson look to be a success?</div>
 <textarea id="success"></textarea>
 
 <div class="section-label">
@@ -182,11 +147,10 @@ How would you like me to support you today — full guidance, light prompts, or 
 And if I see a safety issue, I’ll step in — is that fair?
 </div>
 <textarea id="support"></textarea>
-
 </div>
 
+<!-- PAGE 2 -->
 <div class="page">
-
 <h2>Reflective Review & Progression</h2>
 
 <div class="section-label">What’s one positive you can take from today’s lesson?</div>
@@ -196,21 +160,15 @@ And if I see a safety issue, I’ll step in — is that fair?
 <textarea id="improve"></textarea>
 
 <div class="section-label">
-Final Self Rating (1–10)  
-On a scale of 1–10, 1 being I know nothing about the subject and 10 being I know it all and I’m test ready.
+Final Self Rating (1–10) – 1 = I know nothing about the subject, 10 = I know it all and I’m test ready
 </div>
 <div class="scale-bar" id="scale2"></div>
 
-<div class="section-label">
-What moved you from a ___ to a ___ today?
-</div>
+<div class="section-label">What moved you from a ___ to a ___ today?</div>
 <textarea id="movement"></textarea>
 
-<div class="section-label">
-Based on today, what should we build on next lesson?
-</div>
+<div class="section-label">Based on today, what should we build on next lesson?</div>
 <textarea id="next"></textarea>
-
 </div>
 
 <script>
@@ -232,7 +190,7 @@ function createScale(id){
 createScale("scale1");
 createScale("scale2");
 
-/* Storage */
+/* Pupil storage */
 let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
 const pupilSelect = document.getElementById("pupilSelect");
 const totalHours = document.getElementById("totalHours");
@@ -262,11 +220,9 @@ function getScaleValue(id){
 function saveLesson(){
     const index=pupilSelect.value;
     if(index==="") return alert("Select a pupil.");
-
     const hours=parseFloat(lessonHours.value)||0;
 
     if(!pupils[index].lessons) pupils[index].lessons=[];
-
     pupils[index].lessons.push({
         date:new Date().toLocaleDateString(),
         hours,
