@@ -74,7 +74,6 @@ button {
     margin-bottom: 20px;
 }
 
-/* Force new page */
 .page-break {
     page-break-before: always;
     break-before: page;
@@ -113,6 +112,11 @@ Total Hours: <span id="totalHours">0</span>
 <button class="print-btn" onclick="window.print()">Download PDF</button>
 
 <div class="section-label">
+Lesson Duration (hours)
+</div>
+<input type="number" id="lessonHours" value="2" step="0.25">
+
+<div class="section-label">
 Lesson Goal – What would you like to improve today? / What still feels inconsistent?
 </div>
 <textarea></textarea>
@@ -143,7 +147,6 @@ How would you like me to support you today?
 If I see a safety issue, I will step in.
 </div>
 
-<!-- PAGE BREAK HERE -->
 <div class="page-break"></div>
 
 <h2>Reflective Review & Progression</h2>
@@ -161,7 +164,7 @@ Final Self Rating (1–10) – 1 = I know nothing, 10 = I’m fully test ready
 </div>
 <div class="scale-bar" id="scale2"></div>
 
-<div class="section-label">
+<div class="section-label" id="movementLabel">
 What moved you from a ___ to a ___ today?
 </div>
 <textarea></textarea>
@@ -174,6 +177,7 @@ Based on today, what should we build on next lesson?
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
+/* SCALE CREATION */
 function createScale(id){
     const container = document.getElementById(id);
     for(let i=1;i<=10;i++){
@@ -182,12 +186,76 @@ function createScale(id){
         div.onclick=()=>{
             [...container.children].forEach(c=>c.classList.remove("selected"));
             div.classList.add("selected");
+            updateMovement();
         };
         container.appendChild(div);
     }
 }
 createScale("scale1");
 createScale("scale2");
+
+function getScaleValue(id){
+    const selected=document.querySelector(`#${id} .selected`);
+    return selected?selected.innerText:"___";
+}
+
+function updateMovement(){
+    const start=getScaleValue("scale1");
+    const end=getScaleValue("scale2");
+    document.getElementById("movementLabel").innerText =
+        `What moved you from a ${start} to a ${end} today?`;
+}
+
+/* PUPIL STORAGE */
+let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
+const pupilSelect = document.getElementById("pupilSelect");
+const totalHours = document.getElementById("totalHours");
+
+function refreshPupils(){
+    pupilSelect.innerHTML="";
+    pupils.forEach((p,i)=>{
+        const option=document.createElement("option");
+        option.value=i;
+        option.textContent=p.name;
+        pupilSelect.appendChild(option);
+    });
+    updateHours();
+}
+refreshPupils();
+
+function updateHours(){
+    const index=pupilSelect.value;
+    if(index==="") return;
+    totalHours.innerText=pupils[index].totalHours || 0;
+}
+
+function addPupil(){
+    const name=prompt("Enter pupil name:");
+    if(!name) return;
+    pupils.push({name:name,totalHours:0});
+    localStorage.setItem("pupils",JSON.stringify(pupils));
+    refreshPupils();
+}
+
+function deletePupil(){
+    const index=pupilSelect.value;
+    if(index==="") return;
+    pupils.splice(index,1);
+    localStorage.setItem("pupils",JSON.stringify(pupils));
+    refreshPupils();
+}
+
+function saveLesson(){
+    const index=pupilSelect.value;
+    if(index==="") return alert("Select a pupil first.");
+    const hours=parseFloat(document.getElementById("lessonHours").value) || 0;
+    pupils[index].totalHours += hours;
+    localStorage.setItem("pupils",JSON.stringify(pupils));
+    updateHours();
+    alert("Lesson saved.");
+}
+
+pupilSelect.addEventListener("change",updateHours);
 </script>
 
 </body>
