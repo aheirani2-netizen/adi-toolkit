@@ -15,21 +15,10 @@ body {
 }
 
 h1 { text-align: center; margin-bottom: 5px; }
-.subtitle {
-    text-align: center;
-    font-style: italic;
-    margin-bottom: 25px;
-}
-h2 {
-    border-bottom: 2px solid #333;
-    padding-bottom: 6px;
-}
+.subtitle { text-align: center; font-style: italic; margin-bottom: 25px; }
+h2 { border-bottom: 2px solid #333; padding-bottom: 6px; }
 
-.section-label {
-    margin-top: 12px;
-    margin-bottom: 4px;
-    font-weight: bold;
-}
+.section-label { margin-top: 12px; margin-bottom: 4px; font-weight: bold; }
 
 textarea, select, input {
     width: 100%;
@@ -57,17 +46,9 @@ button {
 .pupil-bar select { flex: 3; }
 .pupil-bar button { flex: 1; }
 
-.total-hours {
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 15px;
-}
+.total-hours { text-align: center; font-weight: bold; margin-bottom: 15px; }
 
-.scale-bar {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 15px;
-}
+.scale-bar { display: flex; gap: 4px; margin-bottom: 15px; }
 .scale-bar div {
     flex: 1;
     padding: 6px;
@@ -82,17 +63,21 @@ button {
 .scale-bar div:nth-child(n+7) { background: #2e7d32; }
 .selected { outline: 2px solid black; }
 
-/* PRINT STYLING */
+/* contenteditable div for support question */
+.editable-box {
+    min-height: 80px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 6px;
+    background: white;
+}
 @media print {
     body { background: white; margin:0; padding:0; font-size:12px; }
     button { display: none !important; }
+    textarea { min-height: 50px; page-break-inside: auto !important; }
+    .editable-box { min-height: 50px; page-break-inside: auto !important; }
     select { border: 1px solid #999; }
-    /* Allow textareas to split naturally across pages */
-    textarea {
-        min-height: 50px; /* shorter for print */
-        page-break-inside: auto !important;
-    }
-    .separator { height: 30px; } /* Visual separation */
+    .separator { height: 30px; }
     @page { size: A4; margin: 15mm; }
 }
 .separator { height: 30px; }
@@ -135,11 +120,12 @@ Initial Self Rating (1–10) – 1 = I know nothing about the subject, 10 = I kn
 <div class="section-label">How would this lesson look to be a success?</div>
 <textarea id="success"></textarea>
 
+<!-- Support question with contenteditable -->
 <div class="section-label">
 How would you like me to support you today — full guidance, light prompts, or mostly independent?  
 And if I see a safety issue, I’ll step in — is that fair?
 </div>
-<textarea id="support"></textarea>
+<div class="editable-box" id="support"></div>
 
 <div class="separator"></div>
 
