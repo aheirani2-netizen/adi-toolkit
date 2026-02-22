@@ -82,31 +82,20 @@ button {
 .scale-bar div:nth-child(n+7) { background: #2e7d32; }
 .selected { outline: 2px solid black; }
 
-/* Print styling */
+/* PRINT STYLING */
 @media print {
     body { background: white; margin:0; padding:0; font-size:12px; }
     button { display: none !important; }
-
-    .page {
-        page-break-after: always;
-        break-after: page;
-        padding: 15mm;
-        box-sizing: border-box;
-    }
-    .page:last-child {
-        page-break-after: auto;
-        break-after: auto;
-    }
     textarea { min-height: 65px; border: 1px solid #999; }
     select { border: 1px solid #999; }
-    @page { size: A4; margin: 0; }
+    /* Use natural flow for automatic page splitting */
+    @page { size: A4; margin: 15mm; }
 }
+.separator { height: 30px; } /* Visual separation between logical pages */
 </style>
 </head>
 <body>
 
-<!-- PAGE 1 -->
-<div class="page">
 <h1>LEARNER REFLECTIVE LOG</h1>
 <div class="subtitle">This log helps track your independence and progress toward test standard.</div>
 
@@ -147,10 +136,9 @@ How would you like me to support you today — full guidance, light prompts, or 
 And if I see a safety issue, I’ll step in — is that fair?
 </div>
 <textarea id="support"></textarea>
-</div>
 
-<!-- PAGE 2 -->
-<div class="page">
+<div class="separator"></div> <!-- Visual separation for Page 2 -->
+
 <h2>Reflective Review & Progression</h2>
 
 <div class="section-label">What’s one positive you can take from today’s lesson?</div>
@@ -169,7 +157,6 @@ Final Self Rating (1–10) – 1 = I know nothing about the subject, 10 = I know
 
 <div class="section-label">Based on today, what should we build on next lesson?</div>
 <textarea id="next"></textarea>
-</div>
 
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
