@@ -46,19 +46,18 @@ textarea {
 }
 
 button {
-    width: 100%; 
-    padding: 12px; 
-    margin: 6px 0; 
+    padding: 10px; 
     border: none; 
     border-radius: 8px;
-    font-size: 15px; 
+    font-size: 14px; 
     font-weight: bold; 
     cursor: pointer; 
     color: white;
+    margin-bottom: 8px;
 }
 
-.print-btn { background: #2e7d32; }
-.save-btn { background: #1976d2; }
+.print-btn { background: #2e7d32; width:100%; }
+.save-btn { background: #1976d2; width:100%; }
 
 .scale-bar { display: flex; gap: 4px; margin-bottom: 20px; }
 
@@ -82,6 +81,20 @@ button {
     margin-top: 14px;
     margin-bottom: 4px;
     font-weight: bold;
+}
+
+.pupil-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.pupil-bar select { flex: 3; }
+.pupil-bar button { flex: 1; }
+
+.total-hours {
+    font-weight: bold;
+    margin-bottom: 15px;
 }
 
 .print-page-break {
@@ -114,14 +127,22 @@ This log helps track your independence and progress toward test standard.
 <p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
 
+<div class="section-label">Student Name</div>
+<div class="pupil-bar">
+    <select id="pupilSelect"></select>
+    <button onclick="addPupil()">Add</button>
+    <button onclick="deletePupil()">Delete</button>
+</div>
+
+<p class="total-hours">Total Hours: <span id="totalHours">0</span></p>
+
 <button class="save-btn" onclick="saveLesson()">Save Lesson</button>
 <button class="print-btn" onclick="window.print()">Download PDF</button>
 
-<!-- PAGE 1 -->
 <h2>Lesson Planning & Development</h2>
 
 <div class="section-label">Lesson Goal</div>
-<textarea placeholder="What would you like to improve today? / What still feels inconsistent?"></textarea>
+<textarea id="goal" placeholder="What would you like to improve today? / What still feels inconsistent?"></textarea>
 
 <div class="section-label">
 On a scale of 1–10, 1 being I know nothing about the subject and 10 being I know it all and I’m test ready — where are you?
@@ -129,15 +150,15 @@ On a scale of 1–10, 1 being I know nothing about the subject and 10 being I kn
 <div class="scale-bar" id="scale1"></div>
 
 <div class="section-label">Why that number and not lower?</div>
-<textarea></textarea>
+<textarea id="whyNumber"></textarea>
 
 <div class="section-label">How would this lesson look to be a success?</div>
-<textarea></textarea>
+<textarea id="successLook"></textarea>
 
 <div class="section-label">
 How would you like me to support you today — full guidance, light prompts, or mostly independent?
 </div>
-<select>
+<select id="supportLevel">
     <option value="">Select support level</option>
     <option>Full guidance</option>
     <option>Light prompts</option>
@@ -148,17 +169,15 @@ How would you like me to support you today — full guidance, light prompts, or 
 If I see a safety issue, I will step in — is that fair?
 </p>
 
-<!-- PAGE 2 -->
 <div class="print-page-break">
 
 <h2>Reflective Review & Progression</h2>
-<p><em>Reflecting on independence and movement toward test standard.</em></p>
 
 <div class="section-label">What’s one positive you can take from today’s lesson?</div>
-<textarea></textarea>
+<textarea id="positive"></textarea>
 
 <div class="section-label">What could we improve on?</div>
-<textarea></textarea>
+<textarea id="improve"></textarea>
 
 <div class="section-label">
 On a scale of 1–10, 1 being I know nothing about the subject and 10 being I know it all and I’m test ready — where are you now?
@@ -166,16 +185,17 @@ On a scale of 1–10, 1 being I know nothing about the subject and 10 being I kn
 <div class="scale-bar" id="scale2"></div>
 
 <div class="section-label">What moved you from a ___ to a ___ today?</div>
-<textarea style="min-height:140px;"></textarea>
+<textarea id="progressReason" style="min-height:140px;"></textarea>
 
 <div class="section-label">Based on today, what should we build on next lesson?</div>
-<textarea></textarea>
+<textarea id="nextLesson"></textarea>
 
 </div>
 
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
+/* SCALE */
 function createScale(id) {
     const container = document.getElementById(id);
     for (let i = 1; i <= 10; i++) {
@@ -191,9 +211,74 @@ function createScale(id) {
 createScale("scale1");
 createScale("scale2");
 
-function saveLesson() {
-    alert("Save function can be reconnected if needed.");
+/* STORAGE */
+let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
+const pupilSelect = document.getElementById("pupilSelect");
+
+function refreshPupils() {
+    pupilSelect.innerHTML = "";
+    pupils.forEach((p, i) => {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = p.name;
+        pupilSelect.appendChild(option);
+    });
+    updateHours();
 }
+refreshPupils();
+
+function updateHours() {
+    const index = pupilSelect.value;
+    document.getElementById("totalHours").innerText =
+        (pupils[index] && pupils[index].totalHours) || 0;
+}
+
+function getScaleValue(id) {
+    const selected = document.querySelector(`#${id} .selected`);
+    return selected ? selected.innerText : "";
+}
+
+function saveLesson() {
+    const index = pupilSelect.value;
+    if (index === "") return alert("Select a pupil.");
+
+    const lesson = {
+        date: new Date().toLocaleDateString(),
+        goal: goal.value,
+        positive: positive.value,
+        improve: improve.value,
+        scale1: getScaleValue("scale1"),
+        scale2: getScaleValue("scale2")
+    };
+
+    if (!pupils[index].lessons) pupils[index].lessons = [];
+    pupils[index].lessons.push(lesson);
+
+    pupils[index].totalHours = (pupils[index].totalHours || 0) + 2;
+
+    localStorage.setItem("pupils", JSON.stringify(pupils));
+    updateHours();
+
+    alert("Lesson saved.");
+}
+
+function addPupil() {
+    const name = prompt("Enter pupil name:");
+    if (!name) return;
+    pupils.push({ name, totalHours: 0, lessons: [] });
+    localStorage.setItem("pupils", JSON.stringify(pupils));
+    refreshPupils();
+}
+
+function deletePupil() {
+    const index = pupilSelect.value;
+    if (index === "") return;
+    pupils.splice(index, 1);
+    localStorage.setItem("pupils", JSON.stringify(pupils));
+    refreshPupils();
+}
+
+pupilSelect.addEventListener("change", updateHours);
 </script>
 
 </body>
