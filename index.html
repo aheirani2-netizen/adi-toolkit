@@ -8,11 +8,11 @@
 <style>
 body { 
     font-family: Arial, sans-serif; 
-    padding: 20px; 
     max-width: 900px; 
     margin: auto; 
     background: #f4f4f4; 
     line-height: 1.5;
+    padding: 20px;
 }
 
 h1 { text-align: center; margin-bottom: 5px; }
@@ -20,7 +20,7 @@ h1 { text-align: center; margin-bottom: 5px; }
 .subtitle {
     text-align: center;
     font-style: italic;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 h2 {
@@ -29,26 +29,31 @@ h2 {
     margin-top: 0;
 }
 
-input, textarea, select {
+.section-label {
+    margin-top: 14px;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+textarea, select {
     width: 100%; 
     padding: 10px; 
     margin-bottom: 15px; 
-    border-radius: 8px;
+    border-radius: 6px;
     border: 1px solid #ccc; 
-    font-size: 16px; 
+    font-size: 14px; 
     box-sizing: border-box;
-    background: white;
 }
 
 textarea { 
-    min-height: 100px; 
+    min-height: 90px; 
     resize: vertical; 
 }
 
 button {
     padding: 10px; 
     border: none; 
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 14px; 
     font-weight: bold; 
     cursor: pointer; 
@@ -77,12 +82,6 @@ button {
 
 .selected { outline: 3px solid #000; }
 
-.section-label {
-    margin-top: 14px;
-    margin-bottom: 4px;
-    font-weight: bold;
-}
-
 .pupil-bar {
     display: flex;
     gap: 8px;
@@ -97,27 +96,45 @@ button {
     margin-bottom: 15px;
 }
 
-.print-page-break {
-    margin-top: 40px;
+/* PAGE STRUCTURE */
+.page {
+    margin-bottom: 40px;
 }
 
+/* PRINT SETTINGS */
 @media print {
-  body { background: white !important; font-size: 13px; }
-  button { display: none !important; }
 
-  .print-page-break {
-      page-break-before: always;
-      break-before: page;
+  body {
+    background: white !important;
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+  }
+
+  button {
+    display: none !important;
+  }
+
+  .page {
+    page-break-after: always;
+    padding: 20px;
+  }
+
+  textarea {
+    min-height: 80px;
+    border: 1px solid #999;
   }
 
   @page {
     size: A4;
-    margin: 12mm;
+    margin: 15mm;
   }
 }
 </style>
 </head>
 <body>
+
+<div class="page">
 
 <h1>LEARNER REFLECTIVE LOG</h1>
 <p class="subtitle">
@@ -165,11 +182,13 @@ How would you like me to support you today — full guidance, light prompts, or 
     <option>Mostly independent</option>
 </select>
 
-<p style="font-size: 14px; font-style: italic;">
+<p style="font-size: 13px; font-style: italic;">
 If I see a safety issue, I will step in — is that fair?
 </p>
 
-<div class="print-page-break">
+</div>
+
+<div class="page">
 
 <h2>Reflective Review & Progression</h2>
 
@@ -185,101 +204,4 @@ On a scale of 1–10, 1 being I know nothing about the subject and 10 being I kn
 <div class="scale-bar" id="scale2"></div>
 
 <div class="section-label">What moved you from a ___ to a ___ today?</div>
-<textarea id="progressReason" style="min-height:140px;"></textarea>
-
-<div class="section-label">Based on today, what should we build on next lesson?</div>
-<textarea id="nextLesson"></textarea>
-
-</div>
-
-<script>
-document.getElementById("date").innerText = new Date().toLocaleDateString();
-
-/* SCALE */
-function createScale(id) {
-    const container = document.getElementById(id);
-    for (let i = 1; i <= 10; i++) {
-        const div = document.createElement("div");
-        div.innerText = i;
-        div.onclick = () => {
-            [...container.children].forEach(c => c.classList.remove("selected"));
-            div.classList.add("selected");
-        };
-        container.appendChild(div);
-    }
-}
-createScale("scale1");
-createScale("scale2");
-
-/* STORAGE */
-let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
-const pupilSelect = document.getElementById("pupilSelect");
-
-function refreshPupils() {
-    pupilSelect.innerHTML = "";
-    pupils.forEach((p, i) => {
-        const option = document.createElement("option");
-        option.value = i;
-        option.textContent = p.name;
-        pupilSelect.appendChild(option);
-    });
-    updateHours();
-}
-refreshPupils();
-
-function updateHours() {
-    const index = pupilSelect.value;
-    document.getElementById("totalHours").innerText =
-        (pupils[index] && pupils[index].totalHours) || 0;
-}
-
-function getScaleValue(id) {
-    const selected = document.querySelector(`#${id} .selected`);
-    return selected ? selected.innerText : "";
-}
-
-function saveLesson() {
-    const index = pupilSelect.value;
-    if (index === "") return alert("Select a pupil.");
-
-    const lesson = {
-        date: new Date().toLocaleDateString(),
-        goal: goal.value,
-        positive: positive.value,
-        improve: improve.value,
-        scale1: getScaleValue("scale1"),
-        scale2: getScaleValue("scale2")
-    };
-
-    if (!pupils[index].lessons) pupils[index].lessons = [];
-    pupils[index].lessons.push(lesson);
-
-    pupils[index].totalHours = (pupils[index].totalHours || 0) + 2;
-
-    localStorage.setItem("pupils", JSON.stringify(pupils));
-    updateHours();
-
-    alert("Lesson saved.");
-}
-
-function addPupil() {
-    const name = prompt("Enter pupil name:");
-    if (!name) return;
-    pupils.push({ name, totalHours: 0, lessons: [] });
-    localStorage.setItem("pupils", JSON.stringify(pupils));
-    refreshPupils();
-}
-
-function deletePupil() {
-    const index = pupilSelect.value;
-    if (index === "") return;
-    pupils.splice(index, 1);
-    localStorage.setItem("pupils", JSON.stringify(pupils));
-    refreshPupils();
-}
-
-pupilSelect.addEventListener("change", updateHours);
-</script>
-
-</body>
-</html>
+<textarea id="
