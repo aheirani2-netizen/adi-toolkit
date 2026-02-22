@@ -69,6 +69,11 @@ button {
 .scale-bar div:nth-child(n+7) { background: #2e7d32; }
 .selected { outline: 2px solid black; }
 
+.safety-note {
+    font-style: italic;
+    margin-bottom: 20px;
+}
+
 @media print {
     body { background: white; font-size: 12px; line-height: 1.4; }
     button { display: none !important; }
@@ -126,16 +131,11 @@ How would you like me to support you today?
     <option>Full guidance</option>
     <option>Light prompts</option>
     <option>Mostly independent</option>
-    <option>Other</option>
 </select>
 
-<div class="section-label">
-If I see a safety issue, I will step in — agreed?
+<div class="safety-note">
+If I see a safety issue, I will step in.
 </div>
-<select>
-    <option>Yes</option>
-    <option>No</option>
-</select>
 
 <h2>Reflective Review & Progression</h2>
 
