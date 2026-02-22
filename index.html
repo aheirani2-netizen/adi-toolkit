@@ -86,12 +86,16 @@ button {
 @media print {
     body { background: white; margin:0; padding:0; font-size:12px; }
     button { display: none !important; }
-    textarea { min-height: 65px; border: 1px solid #999; }
     select { border: 1px solid #999; }
-    /* Use natural flow for automatic page splitting */
+    /* Allow textareas to split naturally across pages */
+    textarea {
+        min-height: 50px; /* shorter for print */
+        page-break-inside: auto !important;
+    }
+    .separator { height: 30px; } /* Visual separation */
     @page { size: A4; margin: 15mm; }
 }
-.separator { height: 30px; } /* Visual separation between logical pages */
+.separator { height: 30px; }
 </style>
 </head>
 <body>
@@ -137,7 +141,7 @@ And if I see a safety issue, I’ll step in — is that fair?
 </div>
 <textarea id="support"></textarea>
 
-<div class="separator"></div> <!-- Visual separation for Page 2 -->
+<div class="separator"></div>
 
 <h2>Reflective Review & Progression</h2>
 
