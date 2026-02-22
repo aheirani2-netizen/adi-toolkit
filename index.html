@@ -79,42 +79,37 @@ button {
 
 .safety-note {
     font-style: italic;
-    margin-bottom: 12px;
+    margin-top: 0px;
+    margin-bottom: 15px;
+    white-space: nowrap;          /* Keep it on one line */
+    background: #f0f0f0;          /* subtle box */
+    padding: 6px 8px;
+    border-left: 4px solid #1976d2;
+    border-radius: 4px;
 }
 
-/* Force clean break before reflective section */
+/* Force page break before reflective section */
 .reflective-section {
     page-break-before: always;
 }
 
 /* PRINT */
 @media print {
-
     body {
         background: white;
         margin: 0;
         padding: 0;
     }
-
-    button {
-        display: none !important;
-    }
-
-    textarea {
-        min-height: 50px;
-    }
-
-    @page {
-        size: A4;
-        margin: 15mm;
-    }
+    button { display: none !important; }
+    textarea { min-height: 50px; }
+    @page { size: A4; margin: 15mm; }
 }
 </style>
 </head>
 <body>
 
 <h1>Reflective Log</h1>
-<p><strong>This log helps track your independence and progress toward test standard.</strong></p>
+<p><strong>This log helps track your independence and progress towards test standard.</strong></p>
 <p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
 
@@ -174,6 +169,7 @@ button {
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
+/* Create rating scales */
 function createScale(id, outputSpan) {
     const container = document.getElementById(id);
     for (let i = 1; i <= 10; i++) {
@@ -193,6 +189,7 @@ function createScale(id, outputSpan) {
 createScale("scale1", "fromScore");
 createScale("scale2", "toScore");
 
+/* Pupil storage */
 let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
 const pupilSelect = document.getElementById("pupilSelect");
 
