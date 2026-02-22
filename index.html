@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADI Reflective Log</title>
+<title>Reflective Log</title>
 
 <style>
 body {
@@ -74,6 +74,12 @@ button {
     margin-bottom: 20px;
 }
 
+/* Force new page */
+.page-break {
+    page-break-before: always;
+    break-before: page;
+}
+
 @media print {
     body { background: white; font-size: 12px; line-height: 1.4; }
     button { display: none !important; }
@@ -109,7 +115,7 @@ Total Hours: <span id="totalHours">0</span>
 <div class="section-label">
 Lesson Goal – What would you like to improve today? / What still feels inconsistent?
 </div>
-<textarea id="goal"></textarea>
+<textarea></textarea>
 
 <div class="section-label">
 Initial Self Rating (1–10) – 1 = I know nothing, 10 = I’m fully test ready
@@ -117,16 +123,16 @@ Initial Self Rating (1–10) – 1 = I know nothing, 10 = I’m fully test ready
 <div class="scale-bar" id="scale1"></div>
 
 <div class="section-label">Why that number and not lower?</div>
-<textarea id="whyNumber"></textarea>
+<textarea></textarea>
 
 <div class="section-label">How would this lesson look to be a success?</div>
-<textarea id="success"></textarea>
+<textarea></textarea>
 
 <div class="section-label">
 How would you like me to support you today?
 </div>
 
-<select id="supportSelect">
+<select>
     <option value="">Select support level</option>
     <option>Full guidance</option>
     <option>Light prompts</option>
@@ -137,35 +143,37 @@ How would you like me to support you today?
 If I see a safety issue, I will step in.
 </div>
 
+<!-- PAGE BREAK HERE -->
+<div class="page-break"></div>
+
 <h2>Reflective Review & Progression</h2>
 
 <div class="section-label">
 What’s one positive you can take from today’s lesson?
 </div>
-<textarea id="positive"></textarea>
+<textarea></textarea>
 
 <div class="section-label">What could we improve on?</div>
-<textarea id="improve"></textarea>
+<textarea></textarea>
 
 <div class="section-label">
 Final Self Rating (1–10) – 1 = I know nothing, 10 = I’m fully test ready
 </div>
 <div class="scale-bar" id="scale2"></div>
 
-<div class="section-label" id="movementLabel">
+<div class="section-label">
 What moved you from a ___ to a ___ today?
 </div>
-<textarea id="movement"></textarea>
+<textarea></textarea>
 
 <div class="section-label">
 Based on today, what should we build on next lesson?
 </div>
-<textarea id="next"></textarea>
+<textarea></textarea>
 
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
-/* Create rating scales */
 function createScale(id){
     const container = document.getElementById(id);
     for(let i=1;i<=10;i++){
@@ -174,70 +182,12 @@ function createScale(id){
         div.onclick=()=>{
             [...container.children].forEach(c=>c.classList.remove("selected"));
             div.classList.add("selected");
-            updateMovementQuestion();
         };
         container.appendChild(div);
     }
 }
-
 createScale("scale1");
 createScale("scale2");
-
-function getScaleValue(id){
-    const selected=document.querySelector(`#${id} .selected`);
-    return selected?selected.innerText:"___";
-}
-
-function updateMovementQuestion(){
-    const start=getScaleValue("scale1");
-    const end=getScaleValue("scale2");
-    document.getElementById("movementLabel").innerText =
-        `What moved you from a ${start} to a ${end} today?`;
-}
-
-/* Pupil storage */
-let pupils=JSON.parse(localStorage.getItem("pupils")||"[]");
-const pupilSelect=document.getElementById("pupilSelect");
-const totalHours=document.getElementById("totalHours");
-
-function refreshPupils(){
-    pupilSelect.innerHTML="";
-    pupils.forEach((p,i)=>{
-        const option=document.createElement("option");
-        option.value=i;
-        option.textContent=p.name;
-        pupilSelect.appendChild(option);
-    });
-    updateHours();
-}
-refreshPupils();
-
-function updateHours(){
-    const index=pupilSelect.value;
-    totalHours.innerText=(pupils[index]&&pupils[index].totalHours)||0;
-}
-
-function saveLesson(){
-    alert("Lesson saved.");
-}
-
-function addPupil(){
-    const name=prompt("Enter pupil name:");
-    if(!name) return;
-    pupils.push({name,totalHours:0});
-    localStorage.setItem("pupils",JSON.stringify(pupils));
-    refreshPupils();
-}
-
-function deletePupil(){
-    const index=pupilSelect.value;
-    if(index==="") return;
-    pupils.splice(index,1);
-    localStorage.setItem("pupils",JSON.stringify(pupils));
-    refreshPupils();
-}
-
-pupilSelect.addEventListener("change",updateHours);
 </script>
 
 </body>
