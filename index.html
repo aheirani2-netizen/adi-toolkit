@@ -3,92 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reflective Log</title>
+<title>reflective log</title>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
-    margin: 0;
+body { 
+    font-family: Arial, sans-serif; 
+    max-width: 900px; 
+    margin: auto; 
     padding: 20px;
+    background: #f4f4f4;
 }
 
-h1 { text-align: center; margin-bottom: 5px; }
-.subtitle { text-align: center; font-style: italic; margin-bottom: 20px; }
-h2 { border-bottom: 2px solid #333; padding-bottom: 6px; }
+h1 { text-align:center; }
 
-.section-label {
-    margin-top: 10px;
-    margin-bottom: 4px;
-    font-weight: bold;
+.page {
+    height: 257mm;
+    padding: 10mm;
+    box-sizing: border-box;
 }
 
-textarea, select, input {
+h2 {
+    margin-top: 20px;
+}
+
+input, textarea, select {
     width: 100%;
-    padding: 6px;
-    margin-bottom: 10px;
+    padding: 8px;
+    margin-bottom: 12px;
     border-radius: 6px;
     border: 1px solid #ccc;
-    box-sizing: border-box;
     font-size: 14px;
+    box-sizing: border-box;
 }
 
-textarea { min-height: 70px; resize: none; }
+textarea {
+    min-height: 70px;
+    resize: vertical;
+}
 
-button {
-    padding: 8px;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
+.scale-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 15px;
+}
+
+.scale-bar div {
+    flex: 1;
+    padding: 6px;
+    text-align: center;
     cursor: pointer;
-    margin-bottom: 6px;
-    color: white;
+    border-radius: 4px;
+    font-weight: bold;
+    background: #ddd;
 }
 
-.save-btn { background: #1976d2; width:100%; }
-.print-btn { background: #2e7d32; width:100%; }
+.scale-bar div.selected {
+    outline: 3px solid black;
+}
 
-.pupil-bar { display: flex; gap: 6px; margin-bottom: 10px; }
+.pupil-bar {
+    display: flex;
+    gap: 6px;
+}
+
 .pupil-bar select { flex: 3; }
 .pupil-bar button { flex: 1; }
 
-.total-hours { text-align: center; font-weight: bold; margin-bottom: 10px; }
-
-.scale-bar { display: flex; gap: 4px; margin-bottom: 10px; }
-.scale-bar div {
-    flex: 1;
-    padding: 5px;
-    text-align: center;
-    font-weight: bold;
+button {
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    background: #1976d2;
     color: white;
-    border-radius: 4px;
     cursor: pointer;
-    font-size: 13px;
 }
-.scale-bar div:nth-child(-n+3) { background: #d32f2f; }
-.scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color:black; }
-.scale-bar div:nth-child(n+7) { background: #2e7d32; }
-.selected { outline: 2px solid black; }
+
+.print-btn { background: #2e7d32; }
 
 .safety-note {
     font-style: italic;
-    margin-top: 6px;
+    margin-bottom: 15px;
 }
 
-/* PAGE STRUCTURE */
-.page {
-    background: white;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-/* PRINT SETTINGS */
 @media print {
 
-    body { margin: 0; padding: 0; background: white; }
+    body {
+        zoom: 0.93;
+        background: white;
+        margin: 0;
+        padding: 0;
+    }
 
     .page {
-        height: 277mm; /* A4 printable height minus margins */
         page-break-after: always;
     }
 
@@ -96,107 +102,79 @@ button {
         page-break-after: auto;
     }
 
-    button { display: none !important; }
-
-    textarea {
-        min-height: 55px;
+    button {
+        display: none !important;
     }
 
     @page {
         size: A4;
-        margin: 10mm;
+        margin: 12mm;
     }
 }
 </style>
 </head>
 <body>
 
-<!-- PAGE 1 -->
-<div class="page">
-
-<h1>LEARNER REFLECTIVE LOG</h1>
-<div class="subtitle">
-This log helps track your independence and progress toward test standard.
-</div>
-
+<h1>Reflective Log</h1>
+<p><strong>This log helps track your independence and progress toward test standard.</strong></p>
 <p><strong>Instructor:</strong> Alex Heirani</p>
 <p><strong>Date:</strong> <span id="date"></span></p>
 
-<div class="section-label">Student Name</div>
 <div class="pupil-bar">
-    <select id="pupilSelect"></select>
-    <button onclick="addPupil()">Add</button>
-    <button onclick="deletePupil()">Delete</button>
+<select id="pupilSelect"></select>
+<button onclick="addPupil()">Add</button>
+<button onclick="deletePupil()">Delete</button>
 </div>
 
-<div class="total-hours">
-Total Hours: <span id="totalHours">0</span>
-</div>
+<br>
 
-<button class="save-btn" onclick="saveLesson()">Save Lesson</button>
-<button class="print-btn" onclick="window.print()">Download PDF</button>
+<button onclick="window.print()" class="print-btn">Download PDF</button>
 
-<div class="section-label">Lesson Duration (hours)</div>
-<input type="number" id="lessonHours" value="2" step="0.25">
+<div class="page">
 
-<div class="section-label">
-Lesson Goal – What would you like to improve today? / What still feels inconsistent?
-</div>
-<textarea></textarea>
+<h2>Lesson Focus</h2>
 
-<div class="section-label">
-Initial Self Rating (1–10)
-</div>
+<label>What would you like to improve today? / What still feels inconsistent?</label>
+<textarea id="goal"></textarea>
+
+<label>On a scale of 1–10 (1 = I know nothing about the subject, 10 = I know it all and I’m test ready)</label>
 <div class="scale-bar" id="scale1"></div>
 
-<div class="section-label">Why that number and not lower?</div>
+<label>Why that number and not lower?</label>
 <textarea></textarea>
 
-<div class="section-label">How would success look by the end of the lesson?</div>
+<label>How would success look today?</label>
 <textarea></textarea>
 
-<div class="section-label">
-How would you like me to support you today?
-</div>
-<select>
-    <option value="">Select support level</option>
-    <option>Full guidance</option>
-    <option>Light prompts</option>
-    <option>Mostly independent</option>
+<label>How would you like me to support you today?</label>
+<select id="support">
+<option value="">Select support level</option>
+<option>Full guidance</option>
+<option>Light prompts</option>
+<option>Mostly independent</option>
 </select>
 
-<div class="safety-note">
-If I see a safety issue, I will step in.
-</div>
+<p class="safety-note">If I see a safety issue, I will step in.</p>
 
 </div>
 
-<!-- PAGE 2 -->
 <div class="page">
 
 <h2>Reflective Review & Progression</h2>
 
-<div class="section-label">
-What’s one positive you can take from today’s lesson?
-</div>
+<label>What’s one positive you can take from today’s lesson?</label>
 <textarea></textarea>
 
-<div class="section-label">What could we improve on?</div>
+<label>What could we improve on?</label>
 <textarea></textarea>
 
-<div class="section-label">
-Final Self Rating (1–10)
-</div>
+<label>On a scale of 1–10 (1 = I know nothing about the subject, 10 = I know it all and I’m test ready)</label>
 <div class="scale-bar" id="scale2"></div>
 
-<div class="section-label" id="movementLabel">
-What moved you from a ___ to a ___ today?
-</div>
+<label>What moved you from a <span id="fromScore">___</span> to a <span id="toScore">___</span> today?</label>
 <textarea></textarea>
 
-<div class="section-label">
-Based on today, what should we build on next lesson?
-</div>
+<label>Based on today, what should we build on next lesson?</label>
 <textarea></textarea>
 
 </div>
@@ -204,85 +182,57 @@ Based on today, what should we build on next lesson?
 <script>
 document.getElementById("date").innerText = new Date().toLocaleDateString();
 
-/* SCALE CREATION */
-function createScale(id){
+/* Create rating scales */
+function createScale(id, outputSpan) {
     const container = document.getElementById(id);
-    for(let i=1;i<=10;i++){
-        const div=document.createElement("div");
-        div.innerText=i;
-        div.onclick=()=>{
-            [...container.children].forEach(c=>c.classList.remove("selected"));
+    for (let i = 1; i <= 10; i++) {
+        const div = document.createElement("div");
+        div.innerText = i;
+        div.onclick = () => {
+            [...container.children].forEach(c => c.classList.remove("selected"));
             div.classList.add("selected");
-            updateMovement();
+
+            if (outputSpan) {
+                document.getElementById(outputSpan).innerText = i;
+            }
         };
         container.appendChild(div);
     }
 }
-createScale("scale1");
-createScale("scale2");
 
-function getScaleValue(id){
-    const selected=document.querySelector(`#${id} .selected`);
-    return selected?selected.innerText:"___";
-}
+createScale("scale1", "fromScore");
+createScale("scale2", "toScore");
 
-function updateMovement(){
-    const start=getScaleValue("scale1");
-    const end=getScaleValue("scale2");
-    document.getElementById("movementLabel").innerText =
-        `What moved you from a ${start} to a ${end} today?`;
-}
-
-/* PUPIL STORAGE */
+/* Pupil storage */
 let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
 const pupilSelect = document.getElementById("pupilSelect");
-const totalHours = document.getElementById("totalHours");
 
-function refreshPupils(){
-    pupilSelect.innerHTML="";
-    pupils.forEach((p,i)=>{
-        const option=document.createElement("option");
-        option.value=i;
-        option.textContent=p.name;
+function refreshPupils() {
+    pupilSelect.innerHTML = "";
+    pupils.forEach((p, i) => {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = p.name;
         pupilSelect.appendChild(option);
     });
-    updateHours();
 }
 refreshPupils();
 
-function updateHours(){
-    const index=pupilSelect.value;
-    if(index==="") return;
-    totalHours.innerText=pupils[index].totalHours || 0;
-}
-
-function addPupil(){
-    const name=prompt("Enter pupil name:");
-    if(!name) return;
-    pupils.push({name:name,totalHours:0});
-    localStorage.setItem("pupils",JSON.stringify(pupils));
+function addPupil() {
+    const name = prompt("Enter pupil name:");
+    if (!name) return;
+    pupils.push({ name });
+    localStorage.setItem("pupils", JSON.stringify(pupils));
     refreshPupils();
 }
 
-function deletePupil(){
-    const index=pupilSelect.value;
-    if(index==="") return;
-    pupils.splice(index,1);
-    localStorage.setItem("pupils",JSON.stringify(pupils));
+function deletePupil() {
+    const index = pupilSelect.value;
+    if (index === "") return;
+    pupils.splice(index, 1);
+    localStorage.setItem("pupils", JSON.stringify(pupils));
     refreshPupils();
 }
-
-function saveLesson(){
-    const index=pupilSelect.value;
-    if(index==="") return alert("Select a pupil first.");
-    const hours=parseFloat(document.getElementById("lessonHours").value) || 0;
-    pupils[index].totalHours += hours;
-    localStorage.setItem("pupils",JSON.stringify(pupils));
-    updateHours();
-    alert("Lesson saved.");
-}
-
-pupilSelect.addEventListener("change",updateHours);
 </script>
 
 </body>
