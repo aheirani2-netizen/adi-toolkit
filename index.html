@@ -12,7 +12,7 @@ body {
     max-width: 900px;
     margin: auto;
     background: #f4f4f4;
-    line-height: 1.5;
+    line-height: 1.45;
 }
 
 h1 {
@@ -28,24 +28,24 @@ h1 {
 
 input, textarea, select {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
+    padding: 8px;
+    margin-bottom: 12px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    font-size: 15px;
+    font-size: 14px;
     box-sizing: border-box;
     background: white;
 }
 
 textarea {
-    min-height: 90px;
+    min-height: 75px;
     resize: vertical;
 }
 
 button {
     width: 100%;
-    padding: 10px;
-    margin: 6px 0;
+    padding: 8px;
+    margin: 5px 0;
     border: none;
     border-radius: 8px;
     font-weight: bold;
@@ -58,44 +58,41 @@ button {
 
 .scale-bar {
     display: flex;
-    gap: 4px;
-    margin-bottom: 15px;
+    gap: 3px;
+    margin-bottom: 10px;
 }
 
 .scale-bar div {
     flex: 1;
-    padding: 6px;
+    padding: 5px;
     text-align: center;
     color: white;
     font-weight: bold;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 5px;
+    font-size: 13px;
 }
 
 .scale-bar div:nth-child(-n+3) { background: #d32f2f; }
 .scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color: black; }
 .scale-bar div:nth-child(n+7) { background: #2e7d32; }
 
-.selected { outline: 3px solid black; }
+.selected { outline: 2px solid black; }
 
 .section-label {
     font-weight: bold;
-    margin-top: 10px;
-    margin-bottom: 4px;
-}
-
-.support-block {
-    break-inside: avoid;
-    page-break-inside: avoid;
+    margin-top: 8px;
+    margin-bottom: 3px;
 }
 
 .safety-note {
-    font-size: 14px;
-    margin-top: -5px;
-    margin-bottom: 10px;
+    font-size: 13px;
+    margin-top: -6px;
+    margin-bottom: 8px;
 }
 
-.reflective-section {
+/* Page 2 starts here cleanly */
+.reflective-section h2 {
     page-break-before: always;
 }
 
@@ -104,15 +101,14 @@ button {
 
     body {
         background: white;
-        font-size: 13px;
-        line-height: 1.4;
+        font-size: 12.5px;
+        line-height: 1.35;
     }
 
     button { display: none; }
 
     textarea {
-        min-height: 70px !important;
-        padding: 8px !important;
+        min-height: 65px !important;
     }
 
     @page {
@@ -137,48 +133,46 @@ button {
 <button class="print-btn" onclick="window.print()">Download PDF</button>
 
 <div class="section-label">Lesson Goal</div>
-<textarea id="goal" placeholder="What would you like to improve today? What still feels inconsistent?"></textarea>
+<textarea placeholder="What would you like to improve today? What still feels inconsistent?"></textarea>
 
 <div class="section-label">Initial Self Rating</div>
 <p>On a scale of 1–10, 1 being I know nothing about the subject and 10 I know it all and I’m test ready.</p>
 <div class="scale-bar" id="scale1"></div>
 
 <div class="section-label">Why that number and not lower?</div>
-<textarea id="whyStart"></textarea>
+<textarea></textarea>
 
 <div class="section-label">What would success look like today?</div>
-<textarea id="success"></textarea>
+<textarea></textarea>
 
-<div class="support-block">
-    <div class="section-label">How would you like me to support you today?</div>
-    <select id="support">
-        <option value="">Select support level</option>
-        <option>Full guidance</option>
-        <option>Light prompts</option>
-        <option>Mostly independent</option>
-    </select>
-    <div class="safety-note">If I see a safety issue, I will step in.</div>
-</div>
+<div class="section-label">How would you like me to support you today?</div>
+<select>
+    <option value="">Select support level</option>
+    <option>Full guidance</option>
+    <option>Light prompts</option>
+    <option>Mostly independent</option>
+</select>
+
+<div class="safety-note">If I see a safety issue, I will step in.</div>
 
 <div class="reflective-section">
-
 <h2>Reflective Review & Progression</h2>
 
 <div class="section-label">What’s one positive you can take from today’s lesson?</div>
-<textarea id="positive"></textarea>
+<textarea></textarea>
 
 <div class="section-label">What could we improve on?</div>
-<textarea id="improve"></textarea>
+<textarea></textarea>
 
 <div class="section-label">Final Self Rating</div>
 <p>On a scale of 1–10, 1 being I know nothing about the subject and 10 I know it all and I’m test ready.</p>
 <div class="scale-bar" id="scale2"></div>
 
 <div class="section-label">What moved you from <span id="fromScore">__</span> to <span id="toScore">__</span> today?</div>
-<textarea id="moved"></textarea>
+<textarea></textarea>
 
 <div class="section-label">Based on today, what should we build on next lesson?</div>
-<textarea id="next"></textarea>
+<textarea></textarea>
 
 </div>
 
