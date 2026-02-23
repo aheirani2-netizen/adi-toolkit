@@ -7,108 +7,145 @@
 
 <style>
 body {
-    font-family: Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     padding: 20px;
     max-width: 900px;
     margin: auto;
-    background: #f4f4f4;
-    line-height: 1.45;
+    background: #f2f4f7;
+    line-height: 1.5;
+    color: #1f2937;
 }
 
 h1 {
     text-align: center;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
+    font-size: 22px;
+    letter-spacing: 0.5px;
 }
 
 .subtitle {
     text-align: center;
     font-size: 14px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    color: #4b5563;
 }
 
 input, textarea, select {
     width: 100%;
-    padding: 8px;
-    margin-bottom: 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 14px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
     font-size: 14px;
     box-sizing: border-box;
     background: white;
+    transition: 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
 }
 
 textarea {
-    min-height: 75px;
+    min-height: 80px;
     resize: vertical;
 }
 
 button {
     width: 100%;
-    padding: 8px;
-    margin: 5px 0;
+    padding: 9px;
+    margin: 6px 0;
     border: none;
-    border-radius: 8px;
-    font-weight: bold;
+    border-radius: 10px;
+    font-weight: 600;
     cursor: pointer;
     color: white;
+    transition: 0.2s ease;
 }
 
-.save-btn { background: #1976d2; }
-.print-btn { background: #2e7d32; }
+.save-btn { background: #2563eb; }
+.save-btn:hover { background: #1e40af; }
+
+.print-btn { background: #16a34a; }
+.print-btn:hover { background: #15803d; }
 
 .scale-bar {
     display: flex;
-    gap: 3px;
-    margin-bottom: 10px;
+    gap: 4px;
+    margin-bottom: 12px;
 }
 
 .scale-bar div {
     flex: 1;
-    padding: 5px;
+    padding: 6px;
     text-align: center;
-    color: white;
-    font-weight: bold;
+    background: #e5e7eb;
+    color: #374151;
+    font-weight: 600;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 6px;
     font-size: 13px;
+    transition: 0.2s ease;
 }
 
-.scale-bar div:nth-child(-n+3) { background: #d32f2f; }
-.scale-bar div:nth-child(n+4):nth-child(-n+6) { background: #fbc02d; color: black; }
-.scale-bar div:nth-child(n+7) { background: #2e7d32; }
+.scale-bar div:hover {
+    background: #d1d5db;
+}
 
-.selected { outline: 2px solid black; }
+.selected {
+    background: #2563eb !important;
+    color: white !important;
+}
 
 .section-label {
-    font-weight: bold;
-    margin-top: 8px;
-    margin-bottom: 3px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    color: #111827;
 }
 
 .safety-note {
     font-size: 13px;
+    color: #6b7280;
     margin-top: -6px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
-/* Page 2 starts here cleanly */
+/* Page 2 begins here cleanly */
 .reflective-section h2 {
     page-break-before: always;
+    margin-top: 10px;
+    font-size: 18px;
+    color: #111827;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 15px;
 }
 
-/* PRINT SETTINGS */
+/* PRINT */
 @media print {
 
     body {
         background: white;
         font-size: 12.5px;
         line-height: 1.35;
+        color: black;
     }
 
     button { display: none; }
 
-    textarea {
-        min-height: 65px !important;
+    input, textarea, select {
+        border: 1px solid #999;
+        box-shadow: none;
+    }
+
+    .selected {
+        background: #444 !important;
+        color: white !important;
     }
 
     @page {
@@ -122,7 +159,7 @@ button {
 <body>
 
 <h1>LEARNER REFLECTIVE LOG</h1>
-<p class="subtitle">This log helps track your independence and progress toward test standard.</p>
+<p class="subtitle">Structured reflection to develop independence and move toward test standard performance.</p>
 
 <div class="section-label">Student Name</div>
 <select id="pupilSelect"></select>
