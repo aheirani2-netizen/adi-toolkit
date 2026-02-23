@@ -93,14 +93,8 @@ button {
     transition: 0.2s ease;
 }
 
-.scale-bar div:hover {
-    background: #93c5fd;
-}
-
-.selected {
-    background: #2563eb !important;
-    color: white !important;
-}
+.scale-bar div:hover { background: #93c5fd; }
+.selected { background: #2563eb !important; color: white !important; }
 
 .section-label {
     font-weight: 600;
@@ -117,15 +111,20 @@ button {
     margin-bottom: 10px;
 }
 
-.reflective-section h2 {
+/* Page 2 container */
+.reflective-section {
     page-break-before: always;
-    margin-top: 10px;
+}
+
+.reflective-section h2 {
+    margin-top: 0;
     font-size: 18px;
     color: #111827;
     border-top: 1px solid #e5e7eb;
     padding-top: 15px;
 }
 
+/* PRINT STYLING */
 @media print {
     body { background: white; font-size: 12.5px; line-height: 1.35; color: black; }
     button { display: none; }
@@ -135,6 +134,7 @@ button {
 }
 </style>
 </head>
+
 <body>
 
 <h1>LEARNER REFLECTIVE LOG</h1>
@@ -148,6 +148,7 @@ button {
 <button class="save-btn" onclick="saveLesson()">Save Lesson</button>
 <button class="print-btn" onclick="window.print()">Download PDF</button>
 
+<!-- PAGE 1 CONTENT -->
 <div class="section-label">Lesson Goal</div>
 <textarea placeholder="What would you like to improve today? What still feels inconsistent?"></textarea>
 
@@ -161,15 +162,18 @@ button {
 <div class="section-label">What would success look like today?</div>
 <textarea placeholder="Type your answer here..."></textarea>
 
-<div class="section-label">How would you like me to support you today?</div>
-<select>
-    <option value="">Select support level</option>
-    <option>Full guidance</option>
-    <option>Light prompts</option>
-    <option>Mostly independent</option>
-</select>
-<div class="safety-note">If I see a safety issue, I will step in.</div>
+<div class="support-section">
+  <div class="section-label">How would you like me to support you today?</div>
+  <select>
+      <option value="">Select support level</option>
+      <option>Full guidance</option>
+      <option>Light prompts</option>
+      <option>Mostly independent</option>
+  </select>
+  <div class="safety-note">If I see a safety issue, I will step in.</div>
+</div>
 
+<!-- PAGE 2 CONTENT -->
 <div class="reflective-section">
 <h2>Reflective Review & Progression</h2>
 
@@ -192,64 +196,59 @@ button {
 </div>
 
 <script>
-function createScale(id) {
-    const container = document.getElementById(id);
-    for (let i = 1; i <= 10; i++) {
-        const div = document.createElement("div");
-        div.innerText = i;
-        div.onclick = () => {
-            [...container.children].forEach(c => c.classList.remove("selected"));
-            div.classList.add("selected");
-            updateMovedText();
-        };
+// Scales
+function createScale(id){
+    const container=document.getElementById(id);
+    for(let i=1;i<=10;i++){
+        const div=document.createElement("div");
+        div.innerText=i;
+        div.onclick=()=>{[...container.children].forEach(c=>c.classList.remove("selected")); div.classList.add("selected"); updateMovedText();};
         container.appendChild(div);
     }
 }
 createScale("scale1");
 createScale("scale2");
 
-function getScaleValue(id) {
-    const selected = document.querySelector(`#${id} .selected`);
+function getScaleValue(id){
+    const selected=document.querySelector(`#${id} .selected`);
     return selected ? selected.innerText : "__";
 }
-
-function updateMovedText() {
-    document.getElementById("fromScore").innerText = getScaleValue("scale1");
-    document.getElementById("toScore").innerText = getScaleValue("scale2");
+function updateMovedText(){
+    document.getElementById("fromScore").innerText=getScaleValue("scale1");
+    document.getElementById("toScore").innerText=getScaleValue("scale2");
 }
 
-/* Student storage */
-let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
-const pupilSelect = document.getElementById("pupilSelect");
-
-function refreshPupils() {
-    pupilSelect.innerHTML = "";
-    pupils.forEach((p, i) => {
-        const option = document.createElement("option");
-        option.value = i;
-        option.textContent = p.name;
+// Student management
+let pupils=JSON.parse(localStorage.getItem("pupils")||"[]");
+const pupilSelect=document.getElementById("pupilSelect");
+function refreshPupils(){
+    pupilSelect.innerHTML="";
+    pupils.forEach((p,i)=>{
+        const option=document.createElement("option");
+        option.value=i;
+        option.textContent=p.name;
         pupilSelect.appendChild(option);
     });
 }
 refreshPupils();
 
-function addPupil() {
-    const name = prompt("Enter student name:");
-    if (!name) return;
-    pupils.push({ name });
-    localStorage.setItem("pupils", JSON.stringify(pupils));
+function addPupil(){
+    const name=prompt("Enter student name:");
+    if(!name) return;
+    pupils.push({name});
+    localStorage.setItem("pupils",JSON.stringify(pupils));
     refreshPupils();
 }
 
-function deletePupil() {
-    const index = pupilSelect.value;
-    if (index === "") return;
-    pupils.splice(index, 1);
-    localStorage.setItem("pupils", JSON.stringify(pupils));
+function deletePupil(){
+    const index=pupilSelect.value;
+    if(index==="") return;
+    pupils.splice(index,1);
+    localStorage.setItem("pupils",JSON.stringify(pupils));
     refreshPupils();
 }
 
-function saveLesson() {
+function saveLesson(){
     alert("Lesson saved locally.");
 }
 </script>
