@@ -11,7 +11,7 @@ body {
     padding: 20px;
     max-width: 900px;
     margin: auto;
-    background: #f9fafb;
+    background: #f3f4f6; /* subtle off-white background */
     line-height: 1.5;
     color: #111827;
 }
@@ -21,26 +21,27 @@ h1 {
     margin-bottom: 6px;
     font-size: 22px;
     letter-spacing: 0.5px;
+    color: #1e3a8a;
 }
 
 .subtitle {
     text-align: center;
     font-size: 14px;
     margin-bottom: 25px;
-    color: #6b7280;
+    color: #4b5563;
 }
 
 input, textarea, select {
     width: 100%;
     padding: 10px;
     margin-bottom: 14px;
-    border-radius: 10px;
-    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
     font-size: 14px;
     box-sizing: border-box;
-    background: white;
-    transition: 0.2s ease;
-    box-shadow: inset 0 0 3px rgba(0,0,0,0.08);
+    background: #ffffff;
+    color: #111827;
+    box-shadow: inset 0 0 3px rgba(0,0,0,0.05);
 }
 
 textarea {
@@ -61,18 +62,18 @@ button {
     padding: 9px;
     margin: 6px 0;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
     color: white;
     transition: 0.2s ease;
 }
 
-.save-btn { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
-.save-btn:hover { background: linear-gradient(135deg, #1e40af, #1e3a8a); }
+.save-btn { background: #2563eb; }
+.save-btn:hover { background: #1e40af; }
 
-.print-btn { background: linear-gradient(135deg, #16a34a, #15803d); }
-.print-btn:hover { background: linear-gradient(135deg, #15803d, #166534); }
+.print-btn { background: #16a34a; }
+.print-btn:hover { background: #15803d; }
 
 .scale-bar {
     display: flex;
@@ -84,8 +85,8 @@ button {
     flex: 1;
     padding: 6px;
     text-align: center;
-    background: #e5e7eb;
-    color: #374151;
+    background: #e2e8f0;
+    color: #1f2937;
     font-weight: 600;
     cursor: pointer;
     border-radius: 6px;
@@ -111,12 +112,6 @@ button {
     margin-bottom: 10px;
 }
 
-/* Keep support section together */
-.support-section {
-    page-break-inside: avoid;
-}
-
-/* Page 2 container */
 .reflective-section {
     page-break-before: always;
 }
@@ -124,16 +119,15 @@ button {
 .reflective-section h2 {
     margin-top: 0;
     font-size: 18px;
-    color: #111827;
-    border-top: 1px solid #e5e7eb;
+    color: #1e3a8a;
+    border-top: 1px solid #cbd5e1;
     padding-top: 15px;
 }
 
-/* PRINT STYLING */
 @media print {
     body { background: white; font-size: 12.5px; line-height: 1.35; color: black; }
     button { display: none; }
-    input, textarea, select { border: 1px solid #999; box-shadow: none; }
+    input, textarea, select { border: 1px solid #999; box-shadow: none; background: #fff; }
     .selected { background: #444 !important; color: white !important; }
     @page { size: A4; margin: 12mm; }
 }
@@ -167,7 +161,6 @@ button {
 <div class="section-label">What would success look like today?</div>
 <textarea placeholder="Type your answer here..."></textarea>
 
-<!-- SUPPORT DROPDOWN + SAFETY NOTE -->
 <div class="support-section">
   <div class="section-label">How would you like me to support you today?</div>
   <select>
