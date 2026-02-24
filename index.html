@@ -7,133 +7,124 @@
 
 <style>
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    font-family: Arial, sans-serif;
     padding: 20px;
     max-width: 900px;
     margin: auto;
-    background: #f0f4f8; /* light blue-gray background */
-    line-height: 1.5;
+    background: #f0f4f8; /* soft blue-gray background */
+    line-height: 1.45;
     color: #111827;
 }
 
 h1 {
     text-align: center;
-    margin-bottom: 6px;
-    font-size: 22px;
-    letter-spacing: 0.5px;
+    margin-bottom: 5px;
     color: #1e3a8a; /* dark blue heading */
 }
 
 .subtitle {
     text-align: center;
     font-size: 14px;
-    margin-bottom: 25px;
-    color: #4b5563; /* muted gray */
+    margin-bottom: 20px;
+    color: #4b5563; /* muted gray subtitle */
 }
 
 input, textarea, select {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 14px;
+    padding: 8px;
+    margin-bottom: 12px;
     border-radius: 8px;
-    border: 1px solid #cbd5e1; /* soft gray border */
+    border: 1px solid #cbd5e1; /* light border */
     font-size: 14px;
     box-sizing: border-box;
     background: #ffffff;
     color: #111827;
-    box-shadow: inset 0 0 3px rgba(0,0,0,0.05);
 }
 
 textarea {
-    min-height: 80px;
+    min-height: 75px;
     resize: vertical;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-    outline: none;
-    border-color: #2563eb; /* bright blue focus */
-    box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
 }
 
 button {
     width: 100%;
-    padding: 9px;
-    margin: 6px 0;
+    padding: 8px;
+    margin: 5px 0;
     border: none;
     border-radius: 8px;
-    font-weight: 600;
+    font-weight: bold;
     cursor: pointer;
     color: white;
     transition: 0.2s ease;
 }
 
-.save-btn { background: #2563eb; }
+.save-btn { background: #2563eb; } /* bright blue */
 .save-btn:hover { background: #1e40af; }
 
-.print-btn { background: #16a34a; }
+.print-btn { background: #16a34a; } /* green */
 .print-btn:hover { background: #15803d; }
 
 .scale-bar {
     display: flex;
-    gap: 4px;
-    margin-bottom: 12px;
+    gap: 3px;
+    margin-bottom: 10px;
 }
 
 .scale-bar div {
     flex: 1;
-    padding: 6px;
+    padding: 5px;
     text-align: center;
-    background: #e0e7ff; /* light blue */
-    color: #1f2937;
-    font-weight: 600;
+    font-weight: bold;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 5px;
     font-size: 13px;
-    transition: 0.2s ease;
+    color: #111827;
+    background: #e2e8f0; /* soft gray-blue for unselected */
+    transition: 0.2s;
 }
 
-.scale-bar div:hover { background: #93c5fd; }
+.scale-bar div:hover { background: #93c5fd; } /* hover light blue */
 .selected { background: #2563eb !important; color: white !important; }
 
 .section-label {
-    font-weight: 600;
-    font-size: 14px;
-    margin-top: 14px;
-    margin-bottom: 6px;
-    color: #1e40af; /* blue section headings */
+    font-weight: bold;
+    margin-top: 8px;
+    margin-bottom: 3px;
+    color: #1e40af; /* blue headings */
 }
 
 .safety-note {
     font-size: 13px;
-    color: #6b7280; /* muted gray */
     margin-top: -6px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    color: #6b7280; /* muted gray */
 }
 
-.support-section {
-    page-break-inside: avoid; /* keep dropdown + safety note together */
-}
-
-.reflective-section {
-    page-break-before: always;
-}
-
+/* Page 2 starts here cleanly */
 .reflective-section h2 {
-    margin-top: 0;
-    font-size: 18px;
+    page-break-before: always;
     color: #1e3a8a;
-    border-top: 1px solid #cbd5e1;
-    padding-top: 15px;
 }
 
+/* PRINT SETTINGS */
 @media print {
-    body { background: white; font-size: 12.5px; line-height: 1.35; color: black; }
+
+    body {
+        background: white;
+        font-size: 12.5px;
+        line-height: 1.35;
+    }
+
     button { display: none; }
-    input, textarea, select { border: 1px solid #999; box-shadow: none; background: #fff; }
-    .selected { background: #444 !important; color: white !important; }
-    @page { size: A4; margin: 12mm; }
+
+    textarea {
+        min-height: 65px !important;
+    }
+
+    @page {
+        size: A4;
+        margin: 12mm;
+    }
 }
 </style>
 </head>
@@ -141,7 +132,7 @@ button {
 <body>
 
 <h1>LEARNER REFLECTIVE LOG</h1>
-<p class="subtitle">Structured reflection to develop independence and move toward test standard performance.</p>
+<p class="subtitle">This log helps track your independence and progress toward test standard.</p>
 
 <div class="section-label">Student Name</div>
 <select id="pupilSelect"></select>
@@ -151,7 +142,6 @@ button {
 <button class="save-btn" onclick="saveLesson()">Save Lesson</button>
 <button class="print-btn" onclick="window.print()">Download PDF</button>
 
-<!-- PAGE 1 CONTENT -->
 <div class="section-label">Lesson Goal</div>
 <textarea placeholder="What would you like to improve today? What still feels inconsistent?"></textarea>
 
@@ -160,98 +150,99 @@ button {
 <div class="scale-bar" id="scale1"></div>
 
 <div class="section-label">Why that number and not lower?</div>
-<textarea placeholder="Type your answer here..."></textarea>
+<textarea></textarea>
 
 <div class="section-label">What would success look like today?</div>
-<textarea placeholder="Type your answer here..."></textarea>
+<textarea></textarea>
 
-<div class="support-section">
-  <div class="section-label">How would you like me to support you today?</div>
-  <select>
-      <option value="">Select support level</option>
-      <option>Full guidance</option>
-      <option>Light prompts</option>
-      <option>Mostly independent</option>
-  </select>
-  <div class="safety-note">If I see a safety issue, I will step in.</div>
-</div>
+<div class="section-label">How would you like me to support you today?</div>
+<select>
+    <option value="">Select support level</option>
+    <option>Full guidance</option>
+    <option>Light prompts</option>
+    <option>Mostly independent</option>
+</select>
 
-<!-- PAGE 2 CONTENT -->
+<div class="safety-note">If I see a safety issue, I will step in.</div>
+
 <div class="reflective-section">
 <h2>Reflective Review & Progression</h2>
 
 <div class="section-label">What’s one positive you can take from today’s lesson?</div>
-<textarea placeholder="Type your answer here..."></textarea>
+<textarea></textarea>
 
 <div class="section-label">What could we improve on?</div>
-<textarea placeholder="Type your answer here..."></textarea>
+<textarea></textarea>
 
 <div class="section-label">Final Self Rating</div>
 <p>On a scale of 1–10, 1 being I know nothing about the subject and 10 I know it all and I’m test ready.</p>
 <div class="scale-bar" id="scale2"></div>
 
 <div class="section-label">What moved you from <span id="fromScore">__</span> to <span id="toScore">__</span> today?</div>
-<textarea placeholder="Type your answer here..."></textarea>
+<textarea></textarea>
 
 <div class="section-label">Based on today, what should we build on next lesson?</div>
-<textarea placeholder="Type your answer here..."></textarea>
-
-</div>
+<textarea></div>
 
 <script>
-// Scales
-function createScale(id){
-    const container=document.getElementById(id);
-    for(let i=1;i<=10;i++){
-        const div=document.createElement("div");
-        div.innerText=i;
-        div.onclick=()=>{[...container.children].forEach(c=>c.classList.remove("selected")); div.classList.add("selected"); updateMovedText();};
+function createScale(id) {
+    const container = document.getElementById(id);
+    for (let i = 1; i <= 10; i++) {
+        const div = document.createElement("div");
+        div.innerText = i;
+        div.onclick = () => {
+            [...container.children].forEach(c => c.classList.remove("selected"));
+            div.classList.add("selected");
+            updateMovedText();
+        };
         container.appendChild(div);
     }
 }
 createScale("scale1");
 createScale("scale2");
 
-function getScaleValue(id){
-    const selected=document.querySelector(`#${id} .selected`);
+function getScaleValue(id) {
+    const selected = document.querySelector(`#${id} .selected`);
     return selected ? selected.innerText : "__";
 }
-function updateMovedText(){
-    document.getElementById("fromScore").innerText=getScaleValue("scale1");
-    document.getElementById("toScore").innerText=getScaleValue("scale2");
+
+function updateMovedText() {
+    document.getElementById("fromScore").innerText = getScaleValue("scale1");
+    document.getElementById("toScore").innerText = getScaleValue("scale2");
 }
 
-// Student management
-let pupils=JSON.parse(localStorage.getItem("pupils")||"[]");
-const pupilSelect=document.getElementById("pupilSelect");
-function refreshPupils(){
-    pupilSelect.innerHTML="";
-    pupils.forEach((p,i)=>{
-        const option=document.createElement("option");
-        option.value=i;
-        option.textContent=p.name;
+/* Student storage */
+let pupils = JSON.parse(localStorage.getItem("pupils") || "[]");
+const pupilSelect = document.getElementById("pupilSelect");
+
+function refreshPupils() {
+    pupilSelect.innerHTML = "";
+    pupils.forEach((p, i) => {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = p.name;
         pupilSelect.appendChild(option);
     });
 }
 refreshPupils();
 
-function addPupil(){
-    const name=prompt("Enter student name:");
-    if(!name) return;
-    pupils.push({name});
-    localStorage.setItem("pupils",JSON.stringify(pupils));
+function addPupil() {
+    const name = prompt("Enter student name:");
+    if (!name) return;
+    pupils.push({ name });
+    localStorage.setItem("pupils", JSON.stringify(pupils));
     refreshPupils();
 }
 
-function deletePupil(){
-    const index=pupilSelect.value;
-    if(index==="") return;
-    pupils.splice(index,1);
-    localStorage.setItem("pupils",JSON.stringify(pupils));
+function deletePupil() {
+    const index = pupilSelect.value;
+    if (index === "") return;
+    pupils.splice(index, 1);
+    localStorage.setItem("pupils", JSON.stringify(pupils));
     refreshPupils();
 }
 
-function saveLesson(){
+function saveLesson() {
     alert("Lesson saved locally.");
 }
 </script>
