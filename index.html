@@ -11,7 +11,7 @@ body {
     padding: 20px;
     max-width: 900px;
     margin: auto;
-    background: #f3f4f6; /* subtle off-white background */
+    background: #f0f4f8; /* light blue-gray background */
     line-height: 1.5;
     color: #111827;
 }
@@ -21,14 +21,14 @@ h1 {
     margin-bottom: 6px;
     font-size: 22px;
     letter-spacing: 0.5px;
-    color: #1e3a8a;
+    color: #1e3a8a; /* dark blue heading */
 }
 
 .subtitle {
     text-align: center;
     font-size: 14px;
     margin-bottom: 25px;
-    color: #4b5563;
+    color: #4b5563; /* muted gray */
 }
 
 input, textarea, select {
@@ -36,7 +36,7 @@ input, textarea, select {
     padding: 10px;
     margin-bottom: 14px;
     border-radius: 8px;
-    border: 1px solid #cbd5e1;
+    border: 1px solid #cbd5e1; /* soft gray border */
     font-size: 14px;
     box-sizing: border-box;
     background: #ffffff;
@@ -53,7 +53,7 @@ input:focus,
 textarea:focus,
 select:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: #2563eb; /* bright blue focus */
     box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
 }
 
@@ -85,7 +85,7 @@ button {
     flex: 1;
     padding: 6px;
     text-align: center;
-    background: #e2e8f0;
+    background: #e0e7ff; /* light blue */
     color: #1f2937;
     font-weight: 600;
     cursor: pointer;
@@ -102,14 +102,18 @@ button {
     font-size: 14px;
     margin-top: 14px;
     margin-bottom: 6px;
-    color: #1e40af;
+    color: #1e40af; /* blue section headings */
 }
 
 .safety-note {
     font-size: 13px;
-    color: #6b7280;
+    color: #6b7280; /* muted gray */
     margin-top: -6px;
     margin-bottom: 10px;
+}
+
+.support-section {
+    page-break-inside: avoid; /* keep dropdown + safety note together */
 }
 
 .reflective-section {
